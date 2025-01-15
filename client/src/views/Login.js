@@ -1,27 +1,8 @@
-/*!
-
-=========================================================
-* Argon Dashboard React - v1.2.4
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2024 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
-import { useEffect,useState } from "react";
+import { useState } from "react";
 // reactstrap components
 import {
   Button,
   Card,
-  CardHeader,
   CardBody,
   FormGroup,
   Form,
@@ -29,10 +10,9 @@ import {
   InputGroupAddon,
   InputGroupText,
   InputGroup,
-  Row,
   Col,
-  CardFooter,
 } from "reactstrap";
+// import authService from "servicers/authService";
 import { useNavigate } from "react-router-dom";
 
 
@@ -50,7 +30,7 @@ const Login = () => {
   const validateInputs = () => {
     let isValid = true;
   
-    if (loginData.email === "" || !loginData.email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
+    if (loginData.email === "" || !loginData.email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
       setLoginData((prev) => ({
         ...prev,
         isEmailValid: false,
@@ -91,8 +71,9 @@ const Login = () => {
         email: loginData.email,
         password: loginData.password,
       };
+      console.log(data)
       navigate("/admin/index");
-      // const {error,msg} = seederService.loginUser(data)
+      // const {error,msg} = authService.loginUser(data)
       // if (error) {
       //   setLoginData((prev)=>({
       //     ...prev,
@@ -166,31 +147,7 @@ const handleChange = (e)=>{
                 </Button>
               </div>
             </Form>
-          </CardBody>
-          <CardFooter className="bg-transparent pb-5">
-            <div className="text-muted text-center mt-2 mb-3">
-              <small>Sign in with credentials</small>
-            </div>
-            <div className="btn-wrapper text-center">
-              <Button
-                className="btn-neutral btn-icon"
-                color="default"
-                href="#pablo"
-                onClick={(e) => e.preventDefault()}
-              >
-                <span className="btn-inner--icon">
-                  <img
-                    alt="..."
-                    src={
-                      require("../../assets/img/icons/common/google.svg")
-                        .default
-                    }
-                  />
-                </span>
-                <span className="btn-inner--text">Google</span>
-              </Button>
-            </div>
-          </CardFooter>          
+          </CardBody>       
         </Card>
       </Col>
     </>
