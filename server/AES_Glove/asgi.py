@@ -8,8 +8,8 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 """
 
 import os
-
 from django.core.asgi import get_asgi_application
+<<<<<<< HEAD
 from AES_Glove.websocket import websocket_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'AES_Glove.settings')
@@ -25,3 +25,17 @@ async def application(scope, receive, send):
         await websocket_application(scope, receive, send)
     else:
         raise NotImplementedError(f"Unknown scope type {scope['type']}")
+=======
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+from patients.routing import websocket_urlpatterns
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'AES_Glove.settings')
+
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    "websocket": AuthMiddlewareStack(
+        URLRouter(websocket_urlpatterns)  # Add WebSocket routing
+    ),
+})
+>>>>>>> dev

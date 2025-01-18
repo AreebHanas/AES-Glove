@@ -31,8 +31,9 @@ ALLOWED_HOSTS = ['127.0.0.1',
     ]
 
 
-# Application definition
+ASGI_APPLICATION = 'AES_Glove.asgi.application'
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'patients'
+    'channels',  # For WebSocket support
+    'patients',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +54,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 
 PASSWORD_HASHERS = [

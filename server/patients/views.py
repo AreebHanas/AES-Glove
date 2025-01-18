@@ -104,10 +104,12 @@ def update_exercise(request):
     exercise.save()
     return JsonResponse({'status': 'updated'}, status=200)
 
+@csrf_exempt
 def get_patients(request):
     patients = Patient.objects.all().values('id', 'email')  # Avoid exposing passwords
     return JsonResponse({'patients': list(patients)})
 
+@csrf_exempt
 def get_exercises(request):
     exercises = Exercise.objects.all().values('id', 'name', 'video_url')
     return JsonResponse({'exercises': list(exercises)})
