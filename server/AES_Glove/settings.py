@@ -25,10 +25,7 @@ SECRET_KEY = 'django-insecure-etewmwet=lobq82a38n_su@2&g^zz029r(ze+zbm$@2$=#-fbf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 
-    'localhost',
-    '9deb-112-134-184-109.ngrok-free.app',
-    ]
+ALLOWED_HOSTS = []
 
 
 ASGI_APPLICATION = 'AES_Glove.asgi.application'
