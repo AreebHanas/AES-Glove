@@ -13,9 +13,9 @@ function App(){
 
     return (
         <Routes>
-          <Route path="/admin/*" element={ isAuthenticated? <AdminLayout /> : <Navigate to='auth/Login'/>} />
+          <Route path="/admin/*" element={ isAuthenticated? <AdminLayout /> : <Navigate to='/auth/login'/>} />
           <Route path="/auth/*" element={  <AuthLayout />} />
-          <Route path="*" element={<Navigate to="/auth/login" replace />} />
+          <Route path="*" element={<Navigate to="auth/login" replace />} />
         </Routes>
     )
 }
