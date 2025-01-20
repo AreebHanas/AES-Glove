@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // reactstrap components
 import {
   Button,
@@ -12,7 +12,7 @@ import {
   InputGroup,
   Col,
 } from "reactstrap";
-// import authService from "servicers/authService";
+import authService from "servicers/authService";
 import { useNavigate } from "react-router-dom";
 
 
@@ -63,7 +63,8 @@ const Login = () => {
     return isValid;
   };
   
-  const submit = () => {
+  const submit = async (e) => {
+    // e.preventDefault();
     const isValid = validateInputs();
   
     if (isValid) {
@@ -71,18 +72,22 @@ const Login = () => {
         email: loginData.email,
         password: loginData.password,
       };
-      console.log(data)
-      navigate("/admin/index");
-      // const {error,msg} = authService.loginUser(data)
-      // if (error) {
-      //   setLoginData((prev)=>({
-      //     ...prev,
-      //     isPasswordValid : true,
-      //     passwordError : msg
-      // }))
-      // } else {
-      //   navigate("/admin/index")
-      // }
+      // navigate("/admin/index")
+      const {error,msg} = await authService.loginUser(data)
+      if (error) {
+        setLoginData((prev)=>({
+          ...prev,
+          isPasswordValid : false,
+          passwordError : msg
+      }))
+      } else {
+        setLoginData((prev)=>({
+          ...prev,
+          isPasswordValid : true,
+          passwordError : ''
+      }))
+        navigate("/admin/index")
+      }
     }
   };
 
@@ -94,13 +99,17 @@ const handleChange = (e)=>{
     }))
 }
 
+// useEffect(()=>{
+//   console.log("Login Data Updated:", loginData);
+// },[loginData])
+
   return (
     <>
       <Col lg="5" md="7">
         <Card className="bg-secondary shadow border-0">
         <CardBody className="px-lg-5 py-lg-5">
             <div className="text-center text-muted mb-4">
-              <small>Or sign in with</small>
+              <small>Sign in with</small>
             </div>
             <Form role="form">
               <FormGroup className="mb-3">
@@ -142,7 +151,7 @@ const handleChange = (e)=>{
                 {!loginData.isPasswordValid && <small style={{ color: "red" }}>{loginData.passwordError}</small>}
               </FormGroup>
               <div className="text-center">
-                <Button className="my-4" color="primary" type="button" onClick={()=>submit()}>
+                <Button className="my-4" color="primary" type="button" onClick={(e)=>{e.preventDefault(); return submit()}}>
                   Sign in
                 </Button>
               </div>

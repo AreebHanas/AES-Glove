@@ -3,15 +3,14 @@ import axios from "axios";
 class authService {
 
     async loginUser(data){
-        const secretKey = "Univercity of Morattuwa ".padEnd(32)
-        const email = data.email
-        const password = data.password
+        // const secretKey = "Univercity of Morattuwa ".padEnd(32)
         // const encryptedPassword = CryptoJS.AES.encrypt(password,secretKey).toString();
 
         try {
-            const response = await axios.post("http://127.0.0.1:5000/login", {
-              email,
-              password: password,
+            const response = await axios.post("http://127.0.0.1:8000/api/authenticate", data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data', // This is automatically set by Axios when using FormData
+                },
             });
 
             if(response.data.token){
@@ -29,4 +28,6 @@ class authService {
     }
 }
 
-export default new authService;
+const auth = new authService();
+
+export default auth;
