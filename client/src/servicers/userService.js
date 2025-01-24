@@ -4,7 +4,7 @@ class userService {
 
     async fetchUser(){
         try {
-            const result = await axios.get("http://127.0.0.1:8000/api/get_patients", {
+            const result = await axios.get("http://127.0.0.1:8080/api/get_patients", {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

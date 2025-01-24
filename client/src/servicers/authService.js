@@ -7,7 +7,7 @@ class authService {
         // const encryptedPassword = CryptoJS.AES.encrypt(password,secretKey).toString();
 
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/authenticate", data, {
+            const response = await axios.post("http://127.0.0.1:8080/api/authenticate", data, {
                 headers: {
                     'Content-Type': 'multipart/form-data', // This is automatically set by Axios when using FormData
                 },

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Route, Routes, Navigate } from "react-router-dom"
+import {jwtDecode} from 'jwt-decode'
 
 import AdminLayout from "layouts/Admin.js";
 import AuthLayout from "layouts/Auth.js";
@@ -7,6 +8,10 @@ import AuthLayout from "layouts/Auth.js";
 function App(){
     const [isAuthenticated,setIsAuthenticates] = useState(false)
     const token = localStorage.getItem("authToken")
+    // if (token){
+    //     const jwt = jwtDecode(token)
+    //     console.log("Decoded Token:", jwt);
+    // }
     useEffect(()=>{
         token ? setIsAuthenticates(true):setIsAuthenticates(false)
     },[token])
