@@ -19,9 +19,9 @@ const URL = "ws://127.0.0.1:8000/ws/sensor-data/"
   }
   // 2nd flex
   const classifyFlex02 ={
-    low: 15,
-    medium: 35,
-    high: 65,
+    low: 20,
+    medium: 50,
+    high: 70,
   }
   // 3rd flex
   const classifyFlex03 ={
@@ -38,41 +38,41 @@ const URL = "ws://127.0.0.1:8000/ws/sensor-data/"
 
    // 1st flex
    const classifyFlexValue01 = (value) => {
-    if (value < classifyFlex01.low) return 'low';
-    if (value < classifyFlex01.medium) return 'medium';
-    if (value < classifyFlex01.high) return 'high';
-    return 'very high';
+    if (value < classifyFlex01.low) return "No Bend";
+    if (value < classifyFlex01.medium) return "Almost No Bend";
+    if (value < classifyFlex01.high) return "Almost Full Bend";
+    return "Full Bend";
   };
 
   // 2nd flex
   const classifyFlexValue02 = (value) => {
-    if (value < classifyFlex02.low) return 'low';
-    if (value < classifyFlex02.medium) return 'medium';
-    if (value < classifyFlex02.high) return 'high';
-    return 'very high';
+    if (value < classifyFlex02.low) return "No Bend";
+    if (value < classifyFlex02.medium) return  "Almost No Bend";
+    if (value < classifyFlex02.high) return "Almost Full Bend";
+    return "Full Bend";
   };
 
   // 3rd flex
   const classifyFlexValue03 = (value) => {
-    if (value < classifyFlex03.low) return 'low';
-    if (value < classifyFlex03.medium) return 'medium';
-    if (value < classifyFlex03.high) return 'high';
-    return 'very high';
+    if (value < classifyFlex03.low) return "No Bend";
+    if (value < classifyFlex03.medium) return  "Almost No Bend";
+    if (value < classifyFlex03.high) return "Almost Full Bend";
+    return "Full Bend";
   };
 
   // 4st flex
   const classifyFlexValue04 = (value) => {
-    if (value < classifyFlex04.low) return 'low';
-    if (value < classifyFlex04.medium) return 'medium';
-    if (value < classifyFlex04.high) return 'high';
-    return 'very high';
+    if (value < classifyFlex04.low) return "No Bend";
+    if (value < classifyFlex04.medium) return  "Almost No Bend";
+    if (value < classifyFlex04.high) return "Almost Full Bend";
+    return "Full Bend";
   };
 
   const categoryMapping = {
-    "low": 1,
-    "medium": 2,
-    "high": 3,
-    "very high": 4
+    "No Bend": 1,
+    "Almost No Bend": 2,
+    "Almost Full Bend": 3,
+    "Full Bend": 4
   };
 
   const [flexData, setFlexData] = useState({
@@ -148,22 +148,18 @@ const URL = "ws://127.0.0.1:8000/ws/sensor-data/"
       },
       xaxis: {
         type: 'numeric',
-        range: XAXISRANGE,
-        floating:false,
-        stepSize:1,
-        mix:0
       },
       yaxis: {
         labels: {
           formatter: (value) => {
             const reverseMapping = {
-              1: 'low',
-              2: 'medium',
-              3: 'high',
-              4: 'very high'
+              1: "No Bend",
+              2: "Almost No Bend",
+              3: "Almost Full Bend",
+              4: "Full Bend",
             };
             return reverseMapping[value];
-          }
+          },
         },
         min: 1,
         max: 4,
@@ -187,7 +183,7 @@ const URL = "ws://127.0.0.1:8000/ws/sensor-data/"
     options: {
       chart: {
         id: 'realtime',
-        height: 350,
+        height: 500,
         type: 'line',
         animations: {
           enabled: true,
@@ -254,7 +250,7 @@ const URL = "ws://127.0.0.1:8000/ws/sensor-data/"
         const message = JSON.parse(event.data);
         console.log("Received data:", message);
   
-        if (message.sensor_value.sensors[1].HR) {
+        if (message?.sensor_value?.sensors[1].HR) {
           const sensorValue = message.sensor_value.sensors[1].HR;
   
           setData((prevData) => {
@@ -277,28 +273,70 @@ const URL = "ws://127.0.0.1:8000/ws/sensor-data/"
             return updatedData;
           });
         }
-
-        if (message.sensor_value.sensors[1].flex){
-
-          const flexValues = message.sensor_value.sensors[1].flex;
-          setFlexData((prev)=>(
-            {
-              flex01: [...prev.flex01.data, { x: time, y: classifyFlexValue01(flexValues[0]) }].slice(-50),
-              flex02: [...prev.flex02.data, { x: time, y: classifyFlexValue02(flexValues[0]) }].slice(-50),
-              flex03: [...prev.flex03.data, { x: time, y: classifyFlexValue03(flexValues[0]) }].slice(-50),
-              flex04: [...prev.flex04.data, { x: time, y: classifyFlexValue04(flexValues[0]) }].slice(-50),
-            }))
-            // Update the series with new data
-          setFlexState((prevState) => ({
-              ...prevState,
-              series: [
-                {...prevState.series[0],data:flexData.flex01.data},
-                {...prevState.series[1],data:flexData.flex02.data},
-                {...prevState.series[2],data:flexData.flex03.data},
-                {...prevState.series[3],data:flexData.flex04.data},
-              ],
-            }));
-          }
+        const flex = message?.sensor_value?.sensors;
+        if (flex && flex[0]){
+            const flexValues = message[0];
+            setFlexData((prev) => {
+              const updatedFlexData = {
+                flex01: {
+                  data: [
+                    ...(prev.flex01?.data || []),
+                    { x: time, y: categoryMapping[classifyFlexValue01(flexValues.IF_Flex, "flex01")] },
+                  ],
+                },
+                flex02: {
+                  data: [
+                    ...(prev.flex02?.data || []),
+                    { x: time, y: categoryMapping[classifyFlexValue02(flexValues.MF_Flex, "flex02")] },
+                  ],
+                },
+                flex03: {
+                  data: [
+                    ...(prev.flex03?.data || []),
+                    { x: time, y: categoryMapping[classifyFlexValue03(flexValues.PF_Flex, "flex03")] },
+                  ],
+                },
+                flex04: {
+                  data: [
+                    ...(prev.flex04?.data || []),
+                    { x: time, y: categoryMapping[classifyFlexValue04(flexValues.RF_Flex, "flex04")] },
+                  ],
+                },
+              };
+          
+              // Update `flexState` while preserving visibility state
+              setFlexState((prevState) => {
+                const updatedSeries = prevState.series.map((series, index) => {
+                  const seriesKey = `flex0${index + 1}`;
+                  return {
+                    ...series,
+                    data: updatedFlexData[seriesKey]?.data || series.data,
+                  };
+                });
+          
+                return {
+                  ...prevState,
+                  series: updatedSeries,
+                  options: {
+                    ...prevState.options,
+                    chart: {
+                      ...prevState.options.chart,
+                      events: {
+                        legendClick: (chartContext, seriesIndex) => {
+                          const visibility = chartContext.w.globals.collapsedSeriesIndices.includes(seriesIndex);
+                          if (visibility) {
+                            chartContext.toggleSeries(chartContext.w.globals.seriesNames[seriesIndex]);
+                          }
+                        },
+                      },
+                    },
+                  },
+                };
+              });
+          
+              return updatedFlexData;
+            });
+        }       
       };
   
     // WebSocket connection closed

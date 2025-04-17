@@ -17,7 +17,7 @@ var routes = [
   {
     path: "/exercise",
     name: "Exercise",
-    icon: "ni ni-planet text-blue",
+    icon: "ni ni-user-run text-blue",
     component: <Exercise />,
     layout: "/admin",
     menuBar: true
@@ -33,7 +33,7 @@ var routes = [
   {
     path: "/patient",
     name: "Patients",
-    icon: "ni ni-bullet-list-67 text-red",
+    icon: "ni ni-single-02 text-red",
     component: <Patient />,
     layout: "/admin",
     menuBar: true

@@ -12,7 +12,7 @@ import routes from "routes.js";
 const Admin = (props) => {
   const mainContent = React.useRef(null);
   const location = useLocation();
-
+  
 
   React.useEffect(() => {
     document.documentElement.scrollTop = 0;
