@@ -7,19 +7,13 @@ class authService {
         // const encryptedPassword = CryptoJS.AES.encrypt(password,secretKey).toString();
 
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/authenticate", data, {
+            const response = await axios.post("http://127.0.0.1:8080/api/authenticate", data, {
                 headers: {
                     'Content-Type': 'multipart/form-data', // This is automatically set by Axios when using FormData
                 },
             });
-
-            if(response.data.token){
-                localStorage.setItem("authToken", response.data.token);
-                return {error:false, msg:"success"}
-            } else {
-                return {error:true,msg:"Invalid credentials"}
-            }
-
+            console.log(data)
+            return {error:false, msg:"Login success", token:response.data.token}
         } catch (err) {
             console.log("error: ", err.message)
             return {error:true, msg:"Login failed. Please try again."}

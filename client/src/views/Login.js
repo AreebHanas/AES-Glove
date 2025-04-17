@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // reactstrap components
 import {
   Button,
@@ -13,11 +13,15 @@ import {
   Col,
 } from "reactstrap";
 import authService from "servicers/authService";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate , useLocation} from "react-router-dom";
+import { useDispatch,useSelector } from "react-redux";
+import { jwtDecode } from 'jwt-decode';
+import { setUser } from "store/user/userSlice.js";
 
 const Login = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const location = useLocation();
   const [loginData,setLoginData] = useState({
     email:"",
     password:"",
@@ -73,7 +77,7 @@ const Login = () => {
         password: loginData.password,
       };
       // navigate("/admin/index")
-      const {error,msg} = await authService.loginUser(data)
+      const {error,msg,token} = await authService.loginUser(data)
       if (error) {
         setLoginData((prev)=>({
           ...prev,
@@ -86,7 +90,10 @@ const Login = () => {
           isPasswordValid : true,
           passwordError : ''
       }))
-        navigate("/admin/index")
+      localStorage.setItem('token',token)
+      const decoded = jwtDecode(token);
+      dispatch(setUser(decoded))
+      navigate("/admin/index")
       }
     }
   };
@@ -98,10 +105,6 @@ const handleChange = (e)=>{
         [name]:value
     }))
 }
-
-// useEffect(()=>{
-//   console.log("Login Data Updated:", loginData);
-// },[loginData])
 
   return (
     <>

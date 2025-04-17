@@ -115,10 +115,10 @@ const Patient = () => {
                                   </DropdownItem>
                                   <DropdownItem
                                     href="#pablo"
-                                    onClick={(e) => {
+                                    onClick={async (e) => {
                                       e.preventDefault();
-                                      userService.deleteUser(item.id)
-                                      fetchUser()
+                                      await userService.deleteUser(item.id)
+                                      await fetchUser()
                                     }}
                                   >
                                     Delete
