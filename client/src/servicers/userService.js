@@ -4,12 +4,8 @@ class userService {
 
     async fetchUser(){
         try {
-            const result = await axios.get("http://127.0.0.1:8080/api/get_patients", {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            })
-            return{msg:"User added",error:false,data:result.data}
+            const result = await axios.get("http://127.0.0.1:8080/api/")
+            return{msg:"Users fetched",error:false,data:result.data}
         } catch (err) {
             console.log("error: ", err.message)
             return {error:true, msg:"Cannot add user somthing went Wrong"}
@@ -18,14 +14,9 @@ class userService {
 
     async addUser(data){
         try {
-            await axios.post("http://127.0.0.1:8080/api/create_patient", data, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            })
-            return{msg:"User added",error:false}
+            const result = await axios.post("http://127.0.0.1:8080/api/create_user", data)
+            return{message: result.data.message, error:result.data.error}
         } catch (err) {
-            console.log("error: ", err.message)
             return {error:true, msg:"Cannot add user somthing went Wrong"}
         }
     }
@@ -33,15 +24,11 @@ class userService {
     async deleteUser(data){
         
         try {
-            await axios.post("http://127.0.0.1:8080/api/delete_patient", {patient_id:data}, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            })
-            return{msg:"Account Deleted",error:false}
+            const result = await axios.post("http://127.0.0.1:8080/api/delete_user", {patient_id:data})
+            return{message:result.data.message, error:result.data.error}
         } catch (err) {
             console.log("error: ", err.message)
-            return {error:true, msg:"Cannot delete user. somthing went Wrong"}
+            return {error:true, message:"Cannot delete user. somthing went Wrong"}
         }
     }
 }
