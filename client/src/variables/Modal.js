@@ -12,6 +12,7 @@ import {
 } from 'reactstrap';
 import PropTypes from 'prop-types';
 import userService from 'servicers/userService';
+import toast from 'react-hot-toast';
 
 function AddModal(props) {
   const { className,modal,toggle,fetchUser } = props;
@@ -78,19 +79,21 @@ const validateInputs = () => {
         password: formData.password,
       };
       // navigate("/admin/index")
-      const {error,msg} = await userService.addUser(data)
+      const {error,message} = await userService.addUser(data)
       if (error) {
         setFormData((prev)=>({
           ...prev,
           isPasswordValid : false,
-          passwordError : msg
+          passwordError : message
       }))
+        toast.error(message)
       } else {
         setFormData((prev)=>({
           ...prev,
           isPasswordValid : true,
           passwordError : ''
       }))
+       toast.success("User created successfully")
       fetchUser()
       toggle()
       }
@@ -125,7 +128,7 @@ const validateInputs = () => {
           <FormGroup>
             <Label for="password">Password</Label>
             <Input
-              type="input"
+              type="password"
               name="password"
               id="password"
               placeholder='Enter a password'

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // reactstrap components
 import {
   Button,
@@ -77,19 +77,20 @@ const Login = () => {
         password: loginData.password,
       };
       // navigate("/admin/index")
-      const {error,msg,token} = await authService.loginUser(data)
+      const {error,msg,resData} = await authService.loginUser(data)
       if (error) {
         setLoginData((prev)=>({
           ...prev,
           isPasswordValid : false,
           passwordError : msg
-      }))
+        }))
       } else {
         setLoginData((prev)=>({
           ...prev,
           isPasswordValid : true,
           passwordError : ''
-      }))
+        }))
+      const token = resData.token.token
       localStorage.setItem('token',token)
       const decoded = jwtDecode(token);
       dispatch(setUser(decoded))
@@ -105,6 +106,13 @@ const handleChange = (e)=>{
         [name]:value
     }))
 }
+
+useEffect( ()=>{
+  const seeder = async() => {
+    await authService.seeder()
+  }
+  seeder()
+},[])
 
   return (
     <>
