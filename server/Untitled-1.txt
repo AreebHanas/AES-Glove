@@ -1,6 +1,0 @@
-software:
-
-flight control
-
-hard:
-
