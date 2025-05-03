@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  client:
+    build: 
+      context: ./client
+      dockerfile: Dockerfile.dev
+    
+    ports:
+      - "3000:3000"
+
+    env_file:
+      - ./client/.env
+
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - FAST_REFRESH=true
+
+    restart: always
+
+  server:
+    build: 
+      context: ./nodeServer
+      dockerfile: Dockerfile.dev
+
+    ports:
+      - "8080:8080"
+
+    env_file:
+      - ./nodeServer/.env
+
+    volumes:
+      - ./nodeServer:/app
+
+    dns:
+      - 8.8.8.8
+
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+
+    restart: always
