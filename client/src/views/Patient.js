@@ -24,10 +24,13 @@ import AddModal from "variables/Modal";
 import userService from "servicers/userService";
 import ConformationModal from "variables/ConformationModal.js";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { setCurrentUser } from "../store/user/userSlice.js";
 const Patient = () => {
   const navigate = useNavigate();
   const [modal, setModal] = useState(false);
   const [items, setItems] = useState([]);
+  const dispatch = useDispatch()
   const [conformationModalOpen, setConfomationModalOpen] = useState(false);
   const [modalData, setModalData] = useState({
     title: "",
@@ -141,6 +144,11 @@ const Patient = () => {
                               }
                               onClick={(e) => {
                                 e.preventDefault();
+                                dispatch(setCurrentUser({
+                                  name: item.name,
+                                  email: item.email,
+                                  id: item._id,
+                                }))
                                 navigate("/admin/live-chart");
                               }}
                             >

@@ -1,0 +1,25 @@
+Download docker (If you using windows download with WSL2)
+Open Docker.exe (Keep this application in background)
+
+===========================================================
+----------------------IN TERMINAL--------------------------
+Go to root directory(where project located)
+RUN  docker-compose up --build (Run this for only 1st time and it will automatically start the server and client you can avoid the 3rd stup. Your good to go😊)
+RUN docker start aes-glove (If you already build the docker image using build command you can start server and client using this command)
+
+===========================================================
+For debugging purposes (devs)
+RUN docker start -a aes-glove-server-1
+RUN docker start -a aes-glove-client-1
+
+>>>>> Note: If your building the docker image using build 
+command after the build it will automatically start 
+client and server in one terminel please kill the servers
+using cntrl + c and run above commands in separate
+terminals
+
+============================================================
+---------You can down you docker using down command---------
+Go to root directory(where project located)
+RUN docker-compose down (After running this command you need
+to build the project again using build command)

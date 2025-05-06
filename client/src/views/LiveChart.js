@@ -4,11 +4,18 @@ import {
   Container,
 } from "reactstrap";
 import Header from "components/Headers/Header.js";
+import { useSelector } from "react-redux";
+import { io } from "socket.io-client";
 
 const LiveChart = ()=>{
 
-const URL = "ws://127.0.0.1:8000/ws/sensor-data/"
+  const SOCKET_URL = 'http://localhost:8080'; // 👈 or your backend URL
+  // const ROOM_ID = 'room2';
 
+  const [socket, setSocket] = useState(null);
+  const [dataLog, setDataLog] = useState([]);
+  const { currentUser } = useSelector(state => state.user);
+  console.log(currentUser)
   const [data, setData] = useState([]);
   // adjust this values as per your need
   // 1st flex
@@ -230,133 +237,158 @@ const URL = "ws://127.0.0.1:8000/ws/sensor-data/"
   });
   
 
-  useEffect(()=>{
-    wsRef.current = new WebSocket(URL);
+  // useEffect(()=>{
+  //   wsRef.current = new WebSocket(URL);
 
-    const ws = wsRef.current;
+  //   const ws = wsRef.current;
 
-    const timer = setInterval(() => {
-      time = time + 1
-    }, 1000);
+  //   const timer = setInterval(() => {
+  //     time = time + 1
+  //   }, 1000);
 
-    // Handle connection event
-    ws.onopen = () => {
-        console.log("Connected to WebSocket server");
-      };
+  //   // Handle connection event
+  //   ws.onopen = () => {
+  //       console.log("Connected to WebSocket server");
+  //     };
 
     
-    // WebSocket message received
-    ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        console.log("Received data:", message);
+  //   // WebSocket message received
+  //   ws.onmessage = (event) => {
+  //       const message = JSON.parse(event.data);
+  //       console.log("Received data:", message);
   
-        if (message?.sensor_value?.sensors[1].HR) {
-          const sensorValue = message.sensor_value.sensors[1].HR;
+  //       if (message?.sensor_value?.sensors[1].HR) {
+  //         const sensorValue = message.sensor_value.sensors[1].HR;
   
-          setData((prevData) => {
-            const updatedData = [...prevData];
-            updatedData.push({
-              x: time,
-              y: sensorValue,
-            });
+  //         setData((prevData) => {
+  //           const updatedData = [...prevData];
+  //           updatedData.push({
+  //             x: time,
+  //             y: sensorValue,
+  //           });
   
-            // Update the series with new data
-            setState((prevState) => ({
-              ...prevState,
-              series: [
-                {
-                  data: updatedData,
-                },
-              ],
-            }));
+  //           // Update the series with new data
+  //           setState((prevState) => ({
+  //             ...prevState,
+  //             series: [
+  //               {
+  //                 data: updatedData,
+  //               },
+  //             ],
+  //           }));
   
-            return updatedData;
-          });
-        }
-        const flex = message?.sensor_value?.sensors;
-        if (flex && flex[0]){
-            const flexValues = message[0];
-            setFlexData((prev) => {
-              const updatedFlexData = {
-                flex01: {
-                  data: [
-                    ...(prev.flex01?.data || []),
-                    { x: time, y: categoryMapping[classifyFlexValue01(flexValues.IF_Flex, "flex01")] },
-                  ],
-                },
-                flex02: {
-                  data: [
-                    ...(prev.flex02?.data || []),
-                    { x: time, y: categoryMapping[classifyFlexValue02(flexValues.MF_Flex, "flex02")] },
-                  ],
-                },
-                flex03: {
-                  data: [
-                    ...(prev.flex03?.data || []),
-                    { x: time, y: categoryMapping[classifyFlexValue03(flexValues.PF_Flex, "flex03")] },
-                  ],
-                },
-                flex04: {
-                  data: [
-                    ...(prev.flex04?.data || []),
-                    { x: time, y: categoryMapping[classifyFlexValue04(flexValues.RF_Flex, "flex04")] },
-                  ],
-                },
-              };
+  //           return updatedData;
+  //         });
+  //       }
+  //       const flex = message?.sensor_value?.sensors;
+  //       if (flex && flex[0]){
+  //           const flexValues = message[0];
+  //           setFlexData((prev) => {
+  //             const updatedFlexData = {
+  //               flex01: {
+  //                 data: [
+  //                   ...(prev.flex01?.data || []),
+  //                   { x: time, y: categoryMapping[classifyFlexValue01(flexValues.IF_Flex, "flex01")] },
+  //                 ],
+  //               },
+  //               flex02: {
+  //                 data: [
+  //                   ...(prev.flex02?.data || []),
+  //                   { x: time, y: categoryMapping[classifyFlexValue02(flexValues.MF_Flex, "flex02")] },
+  //                 ],
+  //               },
+  //               flex03: {
+  //                 data: [
+  //                   ...(prev.flex03?.data || []),
+  //                   { x: time, y: categoryMapping[classifyFlexValue03(flexValues.PF_Flex, "flex03")] },
+  //                 ],
+  //               },
+  //               flex04: {
+  //                 data: [
+  //                   ...(prev.flex04?.data || []),
+  //                   { x: time, y: categoryMapping[classifyFlexValue04(flexValues.RF_Flex, "flex04")] },
+  //                 ],
+  //               },
+  //             };
           
-              // Update `flexState` while preserving visibility state
-              setFlexState((prevState) => {
-                const updatedSeries = prevState.series.map((series, index) => {
-                  const seriesKey = `flex0${index + 1}`;
-                  return {
-                    ...series,
-                    data: updatedFlexData[seriesKey]?.data || series.data,
-                  };
-                });
+  //             // Update `flexState` while preserving visibility state
+  //             setFlexState((prevState) => {
+  //               const updatedSeries = prevState.series.map((series, index) => {
+  //                 const seriesKey = `flex0${index + 1}`;
+  //                 return {
+  //                   ...series,
+  //                   data: updatedFlexData[seriesKey]?.data || series.data,
+  //                 };
+  //               });
           
-                return {
-                  ...prevState,
-                  series: updatedSeries,
-                  options: {
-                    ...prevState.options,
-                    chart: {
-                      ...prevState.options.chart,
-                      events: {
-                        legendClick: (chartContext, seriesIndex) => {
-                          const visibility = chartContext.w.globals.collapsedSeriesIndices.includes(seriesIndex);
-                          if (visibility) {
-                            chartContext.toggleSeries(chartContext.w.globals.seriesNames[seriesIndex]);
-                          }
-                        },
-                      },
-                    },
-                  },
-                };
-              });
+  //               return {
+  //                 ...prevState,
+  //                 series: updatedSeries,
+  //                 options: {
+  //                   ...prevState.options,
+  //                   chart: {
+  //                     ...prevState.options.chart,
+  //                     events: {
+  //                       legendClick: (chartContext, seriesIndex) => {
+  //                         const visibility = chartContext.w.globals.collapsedSeriesIndices.includes(seriesIndex);
+  //                         if (visibility) {
+  //                           chartContext.toggleSeries(chartContext.w.globals.seriesNames[seriesIndex]);
+  //                         }
+  //                       },
+  //                     },
+  //                   },
+  //                 },
+  //               };
+  //             });
           
-              return updatedFlexData;
-            });
-        }       
-      };
+  //             return updatedFlexData;
+  //           });
+  //       }       
+  //     };
   
-    // WebSocket connection closed
-    ws.onclose = (event) => {
-        console.log("WebSocket connection closed:", event);
-      };
+  //   // WebSocket connection closed
+  //   ws.onclose = (event) => {
+  //       console.log("WebSocket connection closed:", event);
+  //     };
   
-      // Handle WebSocket errors
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-      };
+  //     // Handle WebSocket errors
+  //     ws.onerror = (error) => {
+  //       console.error("WebSocket error:", error);
+  //     };
   
-      // Cleanup on component unmount
-      return () => {
-        ws.close();
-        clearInterval(timer);
-        console.log("WebSocket connection closed on unmount");
-      };
+  //     // Cleanup on component unmount
+  //     return () => {
+  //       ws.close();
+  //       clearInterval(timer);
+  //       console.log("WebSocket connection closed on unmount");
+  //     };
 
-  },[])
+  // },[])
+
+  useEffect(() => {
+    const newSocket = io(SOCKET_URL, {
+      transports: ['websocket'],
+    });
+    setSocket(newSocket);
+
+    // Join room after connecting
+    newSocket.on('connect', () => {
+      // console.log('Connected:', newSocket.id);
+      newSocket.emit('join-room', currentUser.id);
+    });
+
+    // Handle data from backend
+    newSocket.on('data', (incomingData) => {
+      // console.log('Data received:', incomingData);
+      setDataLog((prev) => [...prev, incomingData]);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      newSocket.emit('leave-room', currentUser.id);
+      newSocket.disconnect();
+    };
+  }, []);
 
     return (
       <>
