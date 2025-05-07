@@ -37,6 +37,7 @@ services:
 
     volumes:
       - ./nodeServer:/app
+      - /app/node_modules
 
     dns:
       - 8.8.8.8
