@@ -61,4 +61,68 @@ router.post('/delete_user', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+router.post('/autocomplete', async (req, res) => {
+    try {
+        const { search } = req.body;
+        const exercises = await userService.autoComplete(search);
+        res.status(200).json(exercises);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+router.post('/get__patient_exercise', async (req, res) => {
+    try {
+        const { user_id } = req.body;
+        const user = await userService.getPatientExercise(user_id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+router.post('/add_patient_exercise', async (req, res) => {
+    try {
+        const { user_id, exercise_id, rounds } = req.body;
+        const updatedUser = await userService.addPatientExercise(user_id, exercise_id, rounds);
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+router.post('/remove_patient_exercise', async (req, res) => {
+    try {
+        const { user_id, exercise_id } = req.body;
+        const updatedUser = await userService.removePatientExercise(user_id, exercise_id);
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+router.post('/edit_patient_exercise', async (req, res) => {
+    try {
+        const { user_id, exercise_id, rounds } = req.body;
+        const updatedUser = await userService.editPatientExercise(user_id, exercise_id, rounds);
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+
 export default router;

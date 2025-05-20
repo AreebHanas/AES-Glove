@@ -1,5 +1,4 @@
 import exerciseModel from '../models/exerciseModel.js';
-import bcrypt from 'bcryptjs';
 
 class exercise {
     creatExercise = async (exerciseDetails) => {
