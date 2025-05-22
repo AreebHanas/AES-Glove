@@ -1,6 +1,7 @@
 import exerciseModel from '../models/exerciseModel.js';
 
 class exercise {
+    // Exercise management services
     creatExercise = async (exerciseDetails) => {
         try {
             const { name, url } = exerciseDetails;
@@ -58,6 +59,27 @@ class exercise {
             return { error: true, message: error.message };
         }
     };
+    // Exercise management services end
+
+    // Dashboard services
+    getExerciseCount = async () => {
+        try {
+            const count = await exerciseModel.countDocuments();
+            return {error:false, count };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    };
+
+    searchExerciseByName = async (name) => {
+        try {
+            // Partial, case-insensitive search by name
+            const exercises = await exerciseModel.find({ name: { $regex: name, $options: 'i' } });
+            return exercises;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
 }
 
 const exerciseService = new exercise();

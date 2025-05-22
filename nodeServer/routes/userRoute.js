@@ -36,7 +36,7 @@ router.post('/create_user', async (req, res) => {
     }
 });
 
-// Route to update a user by ID (ID passed in the body)
+// Route to edit a user by ID (ID passed in the body)
 router.put('/edit_user', async (req, res) => {
     try {
         const updatedUser = await userService.updateUser(req.body);
@@ -121,6 +121,80 @@ router.post('/edit_patient_exercise', async (req, res) => {
         res.status(200).json(updatedUser);
     } catch (error) {
         res.status(400).json({ message: error.message });
+    }
+});
+
+router.get('/get_patient_count', async (req, res) => {
+    try {
+        const patients = await userService.countTotalPatient();
+        if (!patients) {
+            return res.status(404).json({ message: 'No patients found' });
+        }
+        res.status(200).json({count:patients});
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+router.get('/get_active_patient_count', async (req, res) => {
+    try {
+        const activePatients = await userService.countActivePatient();
+        if (!activePatients) {
+            return res.status(404).json({ message: 'No active patients found' });
+        }
+        res.status(200).json({count:activePatients});
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+router.get('/get_online_patient_count', async (req, res) => {
+    try {
+        const currentlyOnlinePatients = await userService.countCurrentlyOnlinePatient();
+        if (!currentlyOnlinePatients) {
+            return res.status(404).json({ message: 'No currently online patients found' });
+        }
+        res.status(200).json({count:currentlyOnlinePatients});
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Route to search users by name
+router.get('/search_user_by_name', async (req, res) => {
+    try {
+        const { name } = req.query;
+        const users = await userService.searchUserByName(name);
+        res.status(200).json({ users });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Route to toggle user status (activate/deactivate)
+router.put('/toggle_user_status', async (req, res) => {
+    try {
+        const { user_id, status } = req.body;
+        const result = await userService.toggleUserStatus(user_id, status);
+        if (result.error) {
+            return res.status(404).json(result);
+        }
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: true, message: error.message });
+    }
+});
+
+// Route to get activated patient count
+router.get('/get_activated_patient_count', async (req, res) => {
+    try {
+        const activatedPatients = await userService.countActivatedPatient();
+        if (!activatedPatients) {
+            return res.status(404).json({ message: 'No activated patients found' });
+        }
+        res.status(200).json({ count: activatedPatients });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 

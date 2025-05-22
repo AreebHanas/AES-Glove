@@ -37,6 +37,29 @@ class ExerciseService {
       return { error: true, message: "Cannot delete exercise. Something went wrong." };
     }
   }
+
+  async getExerciseCount(){
+        try {
+            const result = await axios.get(`${BASE_URL}/get_exercise_count`)
+            if (result.data.error) {
+                return {error:true, message:result.data.message}
+            }
+            return {error:false, count:result.data.count}
+        } catch (err) {
+            console.log("error: ", err.message)
+            return {error:true, message:"Cannot get exercise count. somthing went Wrong"}
+        }
+    }
+
+  async searchExerciseByName(name) {
+    try {
+      const result = await axios.get(`${BASE_URL}/search_exercise_by_name`, { params: { name } });
+      return { error: false, data: result.data.exercises };
+    } catch (err) {
+      console.log("Error:", err.message);
+      return { error: true, message: "Cannot search exercise by name. Something went wrong." };
+    }
+  }
 }
 
 const exerciseService = new ExerciseService();

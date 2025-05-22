@@ -61,8 +61,13 @@ const PatientExercise = () => {
 
   const fetchPatientExercise = async () => {
     const result = await userService.getPatientExercise(currentUser.id);
-    console.log(result.data)
-    setItems(result.data);
+    // Add isEditing and editRound fields for UI editing
+    const exercises = (result.data || []).map(item => ({
+      ...item,
+      isEditing: false,
+      editRound: item.round
+    }));
+    setItems(exercises);
   };
   
   useEffect(() => {
@@ -70,6 +75,29 @@ const PatientExercise = () => {
   }, []);
 
   const toggle = () => setModal(!modal);
+
+  const enableRoundEdit = idx => {
+    setItems(items => items.map((item, i) => i === idx ? { ...item, isEditing: true, editRound: item.round } : { ...item, isEditing: false }));
+  };
+
+  const handleRoundChange = (idx, value) => {
+    setItems(items => items.map((item, i) => i === idx ? { ...item, editRound: value } : item));
+  };
+
+  const saveRoundEdit = async (idx, exerciseId, newRound) => {
+    const data = { user_id: currentUser.id, exercise_id: exerciseId, rounds: Number(newRound) };
+    const result = await userService.editPatientExercise(data);
+    if (result.error) {
+      toast.error(result.message);
+    } else {
+      toast.success('Rounds updated');
+      fetchPatientExercise();
+    }
+  };
+
+  const cancelRoundEdit = idx => {
+    setItems(items => items.map((item, i) => i === idx ? { ...item, isEditing: false, editRound: item.round } : item));
+  };
 
   return (
     <>
@@ -105,42 +133,69 @@ const PatientExercise = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((item) => (
-                    <tr key={item.exerciseDetails._id}>
+                  {items.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="text-center text-white">No exercise assigned</td>
+                    </tr>
+                  ) : (
+                    items.map((item, idx) => (
+                      <tr key={item.exerciseDetails._id}>
                         <td>{item.exerciseDetails.name}</td>
                         <td>{item.exerciseDetails.url}</td>
-                        <td>{item.round}</td>
+                        <td>
+                          {item.isEditing ? (
+                            <>
+                              <input
+                                type="number"
+                                min={1}
+                                value={item.editRound}
+                                onChange={e => handleRoundChange(idx, e.target.value)}
+                                style={{ width: 60, textAlign: 'center', marginRight: 8 }}
+                              />
+                              <Button color="success" size="sm" onClick={() => saveRoundEdit(idx, item.exerciseDetails._id, item.editRound)} style={{ marginRight: 4 }}>Save</Button>
+                              <Button color="secondary" size="sm" onClick={() => cancelRoundEdit(idx)}>Cancel</Button>
+                            </>
+                          ) : (
+                            <>
+                              {item.round}
+                              <Button color="link" size="sm" style={{ padding: '0 0 0 8px' }} onClick={() => enableRoundEdit(idx)}>
+                                <i className="fas fa-edit" />
+                              </Button>
+                            </>
+                          )}
+                        </td>
                         <td className="text-right">
-                            <UncontrolledDropdown>
+                          <UncontrolledDropdown>
                             <DropdownToggle
-                                className="btn-icon-only text-light"
-                                href="#pablo"
-                                role="button"
-                                size="sm"
-                                color=""
-                                onClick={(e) => e.preventDefault()}
+                              className="btn-icon-only text-light"
+                              href="#pablo"
+                              role="button"
+                              size="sm"
+                              color=""
+                              onClick={e => e.preventDefault()}
                             >
-                                <i className="fas fa-ellipsis-v" />
+                              <i className="fas fa-ellipsis-v" />
                             </DropdownToggle>
                             <DropdownMenu className="dropdown-menu-arrow" right>
-                                <DropdownItem
+                              <DropdownItem
                                 href="#pablo"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    confermDelete(
+                                onClick={e => {
+                                  e.preventDefault();
+                                  confermDelete(
                                     "Delete Assigned Exercise",
                                     async () => await deleteAction(item.exerciseDetails._id, currentUser.id),
                                     "Are you sure you want to delete this Excersise ?"
-                                    );
+                                  );
                                 }}
-                                >
+                              >
                                 Delete
-                                </DropdownItem>
+                              </DropdownItem>
                             </DropdownMenu>
-                            </UncontrolledDropdown>
+                          </UncontrolledDropdown>
                         </td>
-                    </tr>
-                  ))}
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </Table>
             </Card>

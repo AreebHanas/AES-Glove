@@ -1,6 +1,39 @@
 import { Card, CardBody, CardTitle, Container, Row, Col } from "reactstrap";
+import userService from '../../servicers/userService.js'
+import exerciseService from "servicers/exerciseService.js";
+import { useEffect, useState } from "react";
 
-const Header = () => {
+const Header = ({ refresh }) => {
+
+  const [totalPatient,setTotalPatient] = useState(0);
+  const [totalExercise,setExercise] = useState(0);
+  const [currentlyOnlinePatient,setCurrentlyOnlinePatient] = useState(0);
+  const [activatedPatient, setActivatedPatient] = useState(0);
+
+  const totalCount = async ()=>{
+    try {
+      const patientCount = await userService.getPatientCount();
+      setTotalPatient(patientCount.count?.totalPatient || 0);
+      const exerciseCount = await exerciseService.getExerciseCount();
+      setExercise(exerciseCount?.count || 0);
+      const onlineCount = await userService.getOnlinePatientCount();
+      setCurrentlyOnlinePatient(onlineCount.count?.onlinePatient || 0);
+      const activatedCount = await userService.getActivatedPatientCount();
+      setActivatedPatient(activatedCount.count || 0);
+    } catch (err) {
+      setTotalPatient(0);
+      setExercise(0);
+      setCurrentlyOnlinePatient(0);
+      setActivatedPatient(0);
+      console.error('Error fetching counts:', err);
+    }
+  }
+
+  useEffect(() => {
+    totalCount();
+  }, [refresh]); // re-run when refresh changes
+
+  // Expose totalCount for external refresh
   return (
     <>
       <div className="header bg-gradient-info pb-8 pt-5 pt-md-8">
@@ -17,24 +50,18 @@ const Header = () => {
                           tag="h5"
                           className="text-uppercase text-muted mb-0"
                         >
-                          Traffic
+                          Total Patients
                         </CardTitle>
                         <span className="h2 font-weight-bold mb-0">
-                          350,897
+                          {totalPatient}
                         </span>
                       </div>
                       <Col className="col-auto">
-                        <div className="icon icon-shape bg-danger text-white rounded-circle shadow">
-                          <i className="fas fa-chart-bar" />
+                        <div className="icon icon-shape bg-info text-white rounded-circle shadow">
+                          <i className="fas fa-user-injured" />
                         </div>
                       </Col>
                     </Row>
-                    <p className="mt-3 mb-0 text-muted text-sm">
-                      <span className="text-success mr-2">
-                        <i className="fa fa-arrow-up" /> 3.48%
-                      </span>{" "}
-                      <span className="text-nowrap">Since last month</span>
-                    </p>
                   </CardBody>
                 </Card>
               </Col>
@@ -47,22 +74,38 @@ const Header = () => {
                           tag="h5"
                           className="text-uppercase text-muted mb-0"
                         >
-                          New users
+                          Total Exercises
                         </CardTitle>
-                        <span className="h2 font-weight-bold mb-0">2,356</span>
+                        <span className="h2 font-weight-bold mb-0">{totalExercise}</span>
+                      </div>
+                      <Col className="col-auto">
+                        <div className="icon icon-shape bg-success text-white rounded-circle shadow">
+                          <i className="fas fa-dumbbell" />
+                        </div>
+                      </Col>
+                    </Row>
+                  </CardBody>
+                </Card>
+              </Col>
+              <Col lg="6" xl="3">
+                <Card className="card-stats mb-4 mb-xl-0">
+                  <CardBody>
+                    <Row>
+                      <div className="col">
+                        <CardTitle
+                          tag="h5"
+                          className="text-uppercase text-muted mb-0"
+                        >
+                          Active Patients
+                        </CardTitle>
+                        <span className="h2 font-weight-bold mb-0">{activatedPatient}</span>
                       </div>
                       <Col className="col-auto">
                         <div className="icon icon-shape bg-warning text-white rounded-circle shadow">
-                          <i className="fas fa-chart-pie" />
+                          <i className="fas fa-user-check" />
                         </div>
                       </Col>
                     </Row>
-                    <p className="mt-3 mb-0 text-muted text-sm">
-                      <span className="text-danger mr-2">
-                        <i className="fas fa-arrow-down" /> 3.48%
-                      </span>{" "}
-                      <span className="text-nowrap">Since last week</span>
-                    </p>
                   </CardBody>
                 </Card>
               </Col>
@@ -75,50 +118,16 @@ const Header = () => {
                           tag="h5"
                           className="text-uppercase text-muted mb-0"
                         >
-                          Sales
+                          Online Patients
                         </CardTitle>
-                        <span className="h2 font-weight-bold mb-0">924</span>
+                        <span className="h2 font-weight-bold mb-0">{currentlyOnlinePatient}</span>
                       </div>
                       <Col className="col-auto">
-                        <div className="icon icon-shape bg-yellow text-white rounded-circle shadow">
-                          <i className="fas fa-users" />
+                        <div className="icon icon-shape bg-primary text-white rounded-circle shadow">
+                          <i className="fas fa-user-clock" />
                         </div>
                       </Col>
                     </Row>
-                    <p className="mt-3 mb-0 text-muted text-sm">
-                      <span className="text-warning mr-2">
-                        <i className="fas fa-arrow-down" /> 1.10%
-                      </span>{" "}
-                      <span className="text-nowrap">Since yesterday</span>
-                    </p>
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col lg="6" xl="3">
-                <Card className="card-stats mb-4 mb-xl-0">
-                  <CardBody>
-                    <Row>
-                      <div className="col">
-                        <CardTitle
-                          tag="h5"
-                          className="text-uppercase text-muted mb-0"
-                        >
-                          Performance
-                        </CardTitle>
-                        <span className="h2 font-weight-bold mb-0">49,65%</span>
-                      </div>
-                      <Col className="col-auto">
-                        <div className="icon icon-shape bg-info text-white rounded-circle shadow">
-                          <i className="fas fa-percent" />
-                        </div>
-                      </Col>
-                    </Row>
-                    <p className="mt-3 mb-0 text-muted text-sm">
-                      <span className="text-success mr-2">
-                        <i className="fas fa-arrow-up" /> 12%
-                      </span>{" "}
-                      <span className="text-nowrap">Since last month</span>
-                    </p>
                   </CardBody>
                 </Card>
               </Col>

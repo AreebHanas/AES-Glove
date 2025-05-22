@@ -15,90 +15,103 @@ import userService from 'servicers/userService';
 import toast from 'react-hot-toast';
 
 function AddModal(props) {
-  const { className,modal,toggle,fetchUser } = props;
-  const [formData,setFormData] = useState({
-    email:'',
-    password:'',
-    isEmailValid:false,
-    isPasswordValid:false,
-    emailError:"",
-    passwordError:""
-  })
+  const { className, modal, toggle, fetchUser, editUser, isEdit } = props;
+  const [formData, setFormData] = useState({
+    email: editUser?.email || '',
+    password: '',
+    isEmailValid: false,
+    isPasswordValid: false,
+    emailError: "",
+    passwordError: ""
+  });
 
-const handleChange = (e) => {
-   const {value,name} = e.target
-   setFormData((prev)=>({
-    ...prev,
-    [name]:value
-   }))
-}
-
-const validateInputs = () => {
-    let isValid = true;
-  
-    if (formData.email === "" || !formData.email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
+  React.useEffect(() => {
+    if (isEdit && editUser) {
       setFormData((prev) => ({
         ...prev,
-        isEmailValid: false,
-        emailError: "Please enter a valid email id",
-      }));
-      isValid = false;
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        isEmailValid: true,
-        emailError: "",
+        email: editUser.email || '',
+        password: '',
       }));
     }
-  
-    if (formData.password === "" || formData.password.length <= 8) {
-      setFormData((prev) => ({
-        ...prev,
-        isPasswordValid: false,
-        passwordError: "Your password should be up to 8 characters",
-      }));
-      isValid = false;
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        isPasswordValid: true,
-        passwordError: "",
-      }));
-    }
-  
-    return isValid;
-  };
-  
-  const submit = async (e) => {
-    // e.preventDefault();
-    const isValid = validateInputs();
-  
-    if (isValid) {
+  }, [isEdit, editUser]);
+
+  const handleChange = (e) => {
+     const {value,name} = e.target
+     setFormData((prev)=>({
+      ...prev,
+      [name]:value
+     }))
+  }
+
+  const validateInputs = () => {
+      let isValid = true;
+    
+      if (formData.email === "" || !formData.email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
+        setFormData((prev) => ({
+          ...prev,
+          isEmailValid: false,
+          emailError: "Please enter a valid email id",
+        }));
+        isValid = false;
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          isEmailValid: true,
+          emailError: "",
+        }));
+      }
+    
+      // Only require password for create, not for edit
+      if (!isEdit && (formData.password === "" || formData.password.length <= 8)) {
+        setFormData((prev) => ({
+          ...prev,
+          isPasswordValid: false,
+          passwordError: "Your password should be up to 8 characters",
+        }));
+        isValid = false;
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          isPasswordValid: true,
+          passwordError: "",
+        }));
+      }
+    
+      return isValid;
+    };
+    
+    const submit = async (e) => {
+      const isValid = validateInputs();
+      if (!isValid) return;
       const data = {
         email: formData.email,
         password: formData.password,
+        ...(isEdit && editUser? { user_id: editUser._id } : {})
       };
-      // navigate("/admin/index")
-      const {error,message} = await userService.addUser(data)
-      if (error) {
-        setFormData((prev)=>({
-          ...prev,
-          isPasswordValid : false,
-          passwordError : message
-      }))
-        toast.error(message)
+      let result;
+      if (isEdit) {
+        result = await userService.editUser(data);
       } else {
-        setFormData((prev)=>({
-          ...prev,
-          isPasswordValid : true,
-          passwordError : ''
-      }))
-       toast.success("User created successfully")
-      fetchUser()
-      toggle()
+        result = await userService.addUser(data);
       }
-    }
-  };
+      if (result.error) {
+        setFormData((prev) => ({
+          ...prev,
+          isPasswordValid: false,
+          passwordError: result.message
+        }));
+        toast.error(result.message);
+        return;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        isPasswordValid: true,
+        passwordError: ''
+      }));
+      toast.success(isEdit ? "User updated successfully" : "User created successfully");
+      fetchUser();
+      toggle();
+    };
 
   return (
     <div>
@@ -109,7 +122,7 @@ const validateInputs = () => {
         backdrop={true}
         keyboard={true}
       >
-        <ModalHeader toggle={toggle}>Create User</ModalHeader>
+        <ModalHeader toggle={toggle}>{isEdit ? 'Edit User' : 'Create User'}</ModalHeader>
         <ModalBody>
         <Form onSubmit={(e) => e.preventDefault()}>
           <FormGroup>
@@ -131,7 +144,7 @@ const validateInputs = () => {
               type="password"
               name="password"
               id="password"
-              placeholder='Enter a password'
+              placeholder={isEdit ? 'Leave blank to keep current password' : 'Enter a password'}
               onChange={handleChange}
               value={formData.password}
             >
@@ -142,7 +155,7 @@ const validateInputs = () => {
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={submit}>
-            Create Account
+            {isEdit ? 'Save Changes' : 'Create Account'}
           </Button>
           <Button color="secondary" onClick={toggle}>
             Cancel
@@ -156,7 +169,10 @@ const validateInputs = () => {
 AddModal.propTypes = {
   className: PropTypes.string,
   modal: PropTypes.bool,
-  toggle: PropTypes.func
+  toggle: PropTypes.func,
+  fetchUser: PropTypes.func,
+  editUser: PropTypes.object,
+  isEdit: PropTypes.bool,
 };
 
 export default AddModal;

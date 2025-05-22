@@ -3,6 +3,7 @@ import exerciseModel from '../models/exerciseModel.js';
 import bcrypt from 'bcryptjs';
 
 class UserService {
+    // User account management services
     creatUser = async (userDetails) => {
         try {
             const { email, password } = userDetails;
@@ -33,8 +34,11 @@ class UserService {
     updateUser = async (userDetails) => {
         try {
             const { user_id, email, password } = userDetails;
-            const hashedPassword = await bcrypt.hash(password, 10);
-            await userModel.findByIdAndUpdate(user_id, { email, password: hashedPassword });
+            const updateData = { email };
+            if (password && password.trim() !== "") {
+                updateData.password = await bcrypt.hash(password, 10);
+            }
+            await userModel.findByIdAndUpdate(user_id, updateData);
             return { status: 'updated' };
         } catch (error) {
             return { error: true, message: error.message };
@@ -43,7 +47,8 @@ class UserService {
       
     getUsers = async () => {
         try {
-            const users = await userModel.find({}, { email: 1 });
+            // Include status field so frontend can toggle correctly
+            const users = await userModel.find({userRole:'user'}, { email: 1, status: 1 });
             return { users };
         } catch (error) {
             return { error: true, message: error.message };
@@ -62,7 +67,9 @@ class UserService {
             return { error: true, message: error.message };
         }
     };
+    // User account management services end
 
+    // User exercise management services
     autoComplete = async (exerciseName) => {
         try {
             let exercises = [];
@@ -137,7 +144,66 @@ class UserService {
             return { error: true, message: error.message };
         }
     }
+    // User exercise management services end
 
+    // Dashboard services
+    countTotalPatient = async () => {
+        try {
+            const totalPatient = await userModel.countDocuments({ userRole: 'user' });
+            return {error:false, totalPatient };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    }
+
+    countActivePatient = async () => {
+        try {
+            const activePatient = await userModel.countDocuments({ userRole: 'user', isActive: true });
+            return {error:false, activePatient };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    }
+
+    countCurrentlyOnlinePatient = async () => {
+        try {
+            const currentlyOnlinePatient = await userModel.countDocuments({ userRole: 'user', status: true });
+            return {error:false, currentlyOnlinePatient };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    }
+
+    countActivatedPatient = async () => {
+        try {
+            const activatedPatient = await userModel.countDocuments({ userRole: 'user', status: true });
+            return { error: false, activatedPatient };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    }
+
+    searchUserByName = async (name) => {
+        try {
+            // Search only users with userRole 'user' and partial email match
+            const users = await userModel.find({ userRole: 'user', email: { $regex: name, $options: 'i' } }, { email: 1 });
+            return users;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    toggleUserStatus = async (user_id, status) => {
+        try {
+            const updatedUser = await userModel.findByIdAndUpdate(user_id, { status }, { new: true });
+            if (!updatedUser) {
+                return { error: true, message: 'User not found' };
+            }
+            return { error: false, message: `User status updated to ${status ? 'active' : 'inactive'}` };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    };
 }
 
 const userService = new UserService();
