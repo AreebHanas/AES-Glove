@@ -61,4 +61,30 @@ router.post('/delete_exercise', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+router.get('/get_exercise_count', async (req, res) => {
+    try {
+        const { exercise_id } = req.query;
+        const exerciseCount = await exerciseService.getExerciseCount(exercise_id);
+        if (!exerciseCount) {
+            return res.status(404).json({ message: 'exercise not found' });
+        }
+        res.status(200).json(exerciseCount);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Route to search exercises by name
+router.get('/search_exercise_by_name', async (req, res) => {
+    try {
+        const { name } = req.query;
+        const exercises = await exerciseService.searchExerciseByName(name);
+        res.status(200).json({ exercises });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
 export default router;
