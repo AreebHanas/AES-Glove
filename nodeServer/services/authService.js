@@ -21,7 +21,7 @@ class AuthService {
   async generateToken(user) {
     try {
       const token = jwt.sign(
-        { id: user._id, email: user.email, name: user.name },
+        { id: user._id, email: user.email, name: user.name, userRole: user.userRole, status: user.status, exercise: user.exercise, avatar: user.avatar },
         JWT_SECRET,
         { expiresIn: "1d" }
       );
@@ -99,6 +99,10 @@ class AuthService {
           id: user._id,
           email: user.email,
           name: user.name,
+          userRole: user.userRole,
+          status: user.status,
+          exercise: user.exercise,
+          avatar: user.avatar,
         },
       };
 

@@ -1,7 +1,20 @@
 import express from 'express';
 import userService from '../services/userService.js';
+import multer from 'multer';
+import path from 'path';
 
 const router = express.Router();
+
+// Multer config for avatar upload
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/avatars/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage });
 
 // Route to get all users
 router.get('/', async (req, res) => {
@@ -198,5 +211,33 @@ router.get('/get_activated_patient_count', async (req, res) => {
     }
 });
 
+// Route to get user creation stats by month
+router.get('/created_stats_by_month', async (req, res) => {
+    try {
+        const stats = await userService.getUserCreatedStatsByMonth();
+        res.status(200).json(stats);
+    } catch (error) {
+        res.status(500).json({ error: true, message: error.message });
+    }
+});
+
+// Route to update user profile (email, password, avatar)
+router.post('/update_profile', upload.single('avatar'), async (req, res) => {
+    try {
+        const { user_id, email, password } = req.body;
+        let avatarUrl = undefined;
+        if (req.file) {
+            avatarUrl = `/uploads/avatars/${req.file.filename}`;
+        }
+        const result = await userService.updateProfile({ user_id, email, password, avatar: avatarUrl });
+        if (result.error) {
+            return res.status(400).json(result);
+        }
+        // Return updated user object for frontend to update avatar
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: true, message: error.message });
+    }
+});
 
 export default router;

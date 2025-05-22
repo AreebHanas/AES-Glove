@@ -13,5 +13,6 @@ app.use(cors());
 app.use('/api',authRoute)
 app.use('/api/user',userRoute)
 app.use('/api/exercise',exerciseRoute)
+app.use('/uploads/avatars', express.static('uploads/avatars'));
 
 export default app;

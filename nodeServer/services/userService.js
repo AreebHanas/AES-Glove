@@ -204,6 +204,52 @@ class UserService {
             return { error: true, message: error.message };
         }
     };
+
+    getUserCreatedStatsByMonth = async () => {
+        try {
+            // Group users by month of creation
+            const users = await userModel.aggregate([
+                { $match: { userRole: 'user' } },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ]);
+            // Format for chart.js
+            const labels = users.map(u => u._id);
+            const counts = users.map(u => u.count);
+            return { labels, counts };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    }
+
+    updateProfile = async ({ user_id, email, password, avatar }) => {
+        try {
+            const updateData = { email };
+            if (password && password.trim() !== "") {
+                updateData.password = await bcrypt.hash(password, 10);
+            }
+            if (avatar) {
+                updateData.avatar = avatar;
+            }
+            // Update and return the new user document
+            const updatedUser = await userModel.findByIdAndUpdate(
+                user_id,
+                updateData,
+                { new: true, select: 'email avatar _id userRole status' }
+            );
+            if (!updatedUser) {
+                return { error: true, message: 'User not found' };
+            }
+            return { error: false, message: 'Profile updated', user: updatedUser };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    }
 }
 
 const userService = new UserService();
