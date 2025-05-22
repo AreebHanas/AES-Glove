@@ -24,7 +24,7 @@ async function connectDB() {
 async function startServer() {
     await connectDB();
 
-    const server = http.createServer(app); // ⬅️ this is new
+    const server = http.createServer(app);
     const io = new Server(server, {
         cors: {
             origin: '*',
@@ -32,7 +32,7 @@ async function startServer() {
         },
     });
 
-    socketHandler(io); // ⬅️ plug in your socket logic
+    socketHandler(io);
 
     server.listen(port, () => {
         console.log(`>>> Server with sockets listening on port: ${port}`);

@@ -8,10 +8,15 @@ const socketHandler = (io) => {
       console.log(`>>>>${socket.id} joined room: ${roomId}`);
       socket.join(roomId);
 
-      if (!activeRooms.has(roomId)) {
-        startSendingRandomData(io, roomId);
-      }
+      // if (!activeRooms.has(roomId)) {
+      //   startSendingRandomData(io, roomId);
+      // }
     });
+
+    socket.on('sencor-data',(roomId, data)=>{
+      console.log(`Received data from ${socket.id} in room ${roomId}:`);
+      io.to(roomId).emit('test-data', data);
+    })
     
     socket.on('leave-room', (roomId) => {
       socket.leave(roomId);
@@ -31,18 +36,18 @@ const socketHandler = (io) => {
   });
 }
 
-function startSendingRandomData(io, roomId) {
-  const intervalId = setInterval(() => {
-    const randomData = {
-      timestamp: new Date(),
-      value: Math.floor(Math.random() * 100),
-    };
-    io.to(roomId).emit('data', randomData);
-    console.log(`Sent to ${roomId}:`, randomData);
-  }, 2000);
+// function startSendingRandomData(io, roomId) {
+//   const intervalId = setInterval(() => {
+//     const randomData = {
+//       timestamp: new Date(),
+//       value: Math.floor(Math.random() * 100),
+//     };
+//     io.to(roomId).emit('data', randomData);
+//     console.log(`Sent to ${roomId}:`, randomData);
+//   }, 2000);
 
-  activeRooms.set(roomId, intervalId);
-}
+//   activeRooms.set(roomId, intervalId);
+// }
 
 function cleanupRoomIfEmpty(io, roomId) {
   const room = io.sockets.adapter.rooms.get(roomId);

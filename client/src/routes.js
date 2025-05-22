@@ -3,7 +3,8 @@ import Profile from "views/Profile.js";
 import Login from "views/Login.js";
 import Patient from "views/Patient.js";
 import Exercise from "views/Exercise.js";
-import LiveChart from "views/LiveChart";
+import LiveChart from "views/LiveChart.js";
+import PatientExercise from "views/PatientExercise.js";
 
 var routes = [
   {
@@ -43,6 +44,14 @@ var routes = [
     name: "Live Chart",
     icon: "ni ni-single-02 text-yellow",
     component: <LiveChart />,
+    layout: "/admin",
+    menuBar: false
+  },
+  {
+    path: "/patient-exercise",
+    name: "Patient Exercise",
+    icon: "ni ni-single-02 text-yellow",
+    component: <PatientExercise />,
     layout: "/admin",
     menuBar: false
   },

@@ -1,4 +1,5 @@
 import userModel from '../models/userModel.js';
+import exerciseModel from '../models/exerciseModel.js';
 import bcrypt from 'bcryptjs';
 
 class UserService {
@@ -61,6 +62,82 @@ class UserService {
             return { error: true, message: error.message };
         }
     };
+
+    autoComplete = async (exerciseName) => {
+        try {
+            let exercises = [];
+            if (!exerciseName || exerciseName === undefined) {
+                exercises = await exerciseModel.find();
+            } else {
+            exercises = await exerciseModel.find({ name: { $regex: exerciseName, $options: 'i' } });
+            }
+            if (exercises.length === 0) {
+                return { error: true, message: 'No exercises found' };
+            }
+            return { exercises };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    }
+
+    getPatientExercise = async (user_id) => {
+        try {
+            const user = await userModel.findById(user_id).populate('exercise.exerciseDetails', 'name url');
+            if (!user) {
+                return { error: true, message: 'User not found' };
+            }
+            return { error: false, data: user.exercise, message: 'Exercise fetched' };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    };
+
+    addPatientExercise = async (user_id, exerciseDetails, rounds) => {
+        try {
+            const user = await userModel.findById(user_id);
+            if (!user) {
+                return { error: true, message: 'User not found' };
+            }
+            user.exercise.push({exerciseDetails, round: rounds});
+            await user.save();
+            return { message: 'Exercise added to user' };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    }
+
+    removePatientExercise = async (user_id, exercise_id) => {
+        try {
+            const user = await userModel.findById(user_id);
+            if (!user) {
+                return { error: true, message: 'User not found' };
+            }
+            user.exercise = user.exercise.filter(exercise => exercise.exerciseDetails.toString() !== exercise_id.toString());
+            await user.save();
+            return { message: 'Exercise removed from user' };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    }
+    
+    editPatientExercise = async (user_id, exercise_id, rounds) => {
+        try {
+            const user = await userModel.findById(user_id);
+            if (!user) {
+                return { error: true, message: 'User not found' };
+            }
+            const exercise = user.exercise.find(exercise => exercise.exerciseDetails.toString() === exercise_id.toString());
+            if (!exercise) {
+                return { error: true, message: 'Exercise not found' };
+            }
+            exercise.round = rounds;
+            await user.save();
+            return { message: 'Exercise updated for user' };
+        } catch (error) {
+            return { error: true, message: error.message };
+        }
+    }
+
 }
 
 const userService = new UserService();

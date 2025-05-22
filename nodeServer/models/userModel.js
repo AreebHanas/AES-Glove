@@ -25,6 +25,17 @@ const userSchema = new mongoose.Schema({
         required: true,
         default: true,
     },
+    exercise: [{
+        exerciseDetails: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Exercise',
+            required: true
+        },
+        round: {
+            type: Number,
+            required: true
+        }
+    }],
 },
 {timestamps: true}
 );
