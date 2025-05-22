@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // node.js library that concatenates classes (strings)
 import classnames from "classnames";
 // javascipt plugin for creating charts
@@ -28,10 +28,12 @@ import {
 
 import Header from "components/Headers/Header.js";
 import { useSelector } from "react-redux";
+import userService from "../servicers/userService.js";
 
 const Index = (props) => {
   const [activeNav, setActiveNav] = useState(1);
   const [chartExample1Data, setChartExample1Data] = useState("data1");
+  const [userBarData, setUserBarData] = useState(chartExample2.data);
 
   if (window.Chart) {
     parseOptions(Chart, chartOptions());
@@ -41,6 +43,47 @@ const Index = (props) => {
     setActiveNav(index);
     setChartExample1Data("data" + index);
   };
+
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      const result = await userService.getUserCreatedStatsByMonth();
+      if (!result.error && result.data) {
+        // Map YYYY-MM to month name
+        const monthNames = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        const labels = result.data.labels.map((label) => {
+          const [year, month] = label.split("-");
+          return monthNames[parseInt(month, 10) - 1] + " " + year;
+        });
+        setUserBarData({
+          ...userBarData,
+          labels,
+          datasets: [
+            {
+              ...userBarData.datasets[0],
+              data: result.data.counts,
+              label: "Accounts Created",
+            },
+          ],
+        });
+      }
+    };
+    fetchUserStats();
+    // eslint-disable-next-line
+  }, []);
+
   return (
     <>
       <Header />
@@ -106,9 +149,9 @@ const Index = (props) => {
                 <Row className="align-items-center">
                   <div className="col">
                     <h6 className="text-uppercase text-muted ls-1 mb-1">
-                      Performance
+                      Growth
                     </h6>
-                    <h2 className="mb-0">Total orders</h2>
+                    <h2 className="mb-0">Patient per month</h2>
                   </div>
                 </Row>
               </CardHeader>
@@ -116,8 +159,31 @@ const Index = (props) => {
                 {/* Chart */}
                 <div className="chart">
                   <Bar
-                    data={chartExample2.data}
-                    options={chartExample2.options}
+                    data={userBarData}
+                    options={{
+                      ...chartExample2.options,
+                      scales: {
+                        ...chartExample2.options.scales,
+                        yAxes: [
+                          {
+                            ...((
+                              chartExample2.options.scales &&
+                              chartExample2.options.scales.yAxes &&
+                              chartExample2.options.scales.yAxes[0]
+                            ) ||
+                              {}),
+                            ticks: {
+                              min: 0,
+                              max: 100,
+                              stepSize: 10,
+                              callback: function (value) {
+                                return value;
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    }}
                   />
                 </div>
               </CardBody>

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // reactstrap components
 import {
   DropdownMenu,
@@ -10,8 +10,32 @@ import {
   Container,
   Media,
 } from "reactstrap";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../../store/user/userSlice";
+
+const getAvatarUrl = (avatar) => {
+  if (!avatar) return require("../../assets/img/defaultUser.png");
+  if (typeof avatar === "string" && avatar.startsWith("/uploads/avatars")) {
+    return "http://localhost:8080" + avatar;
+  }
+  return avatar;
+};
 
 const AdminNavbar = (props) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user.user);
+  const avatar = getAvatarUrl(user.avatar);
+
+  const handleLogout = () => {
+    // Clear user state and localStorage
+    dispatch(setUser({}));
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("persist:root");
+    navigate("/auth/login");
+  };
+
   return (
     <>
       <Navbar className="navbar-top navbar-dark" expand="md" id="navbar-main">
@@ -28,12 +52,12 @@ const AdminNavbar = (props) => {
                   <span className="avatar avatar-sm rounded-circle">
                     <img
                       alt="..."
-                      src={require("../../assets/img/theme/team-4-800x800.jpg")}
+                      src={avatar}
                     />
                   </span>
                   <Media className="ml-2 d-none d-lg-block">
                     <span className="mb-0 text-sm font-weight-bold">
-                      Jessica Jones
+                      {user.name || user.email}
                     </span>
                   </Media>
                 </Media>
@@ -47,7 +71,7 @@ const AdminNavbar = (props) => {
                   <span>My profile</span>
                 </DropdownItem>
                 <DropdownItem divider />
-                <DropdownItem href="#pablo" onClick={(e) => e.preventDefault()}>
+                <DropdownItem onClick={handleLogout}>
                   <i className="ni ni-user-run" />
                   <span>Logout</span>
                 </DropdownItem>

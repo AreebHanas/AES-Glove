@@ -14,8 +14,7 @@ import {
 } from "reactstrap";
 import authService from "servicers/authService";
 import { useNavigate , useLocation} from "react-router-dom";
-import { useDispatch,useSelector } from "react-redux";
-import { jwtDecode } from 'jwt-decode';
+import { useDispatch } from "react-redux";
 import { setUser } from "store/user/userSlice.js";
 
 const Login = () => {
@@ -76,7 +75,6 @@ const Login = () => {
         email: loginData.email,
         password: loginData.password,
       };
-      // navigate("/admin/index")
       const {error,msg,resData} = await authService.loginUser(data)
       if (error) {
         setLoginData((prev)=>({
@@ -90,11 +88,14 @@ const Login = () => {
           isPasswordValid : true,
           passwordError : ''
         }))
-      const token = resData.token.token
-      localStorage.setItem('token',token)
-      const decoded = jwtDecode(token);
-      dispatch(setUser(decoded))
-      navigate("/admin/index")
+        const token = resData.token.token
+        localStorage.setItem('token',token)
+        // Store all user details except password
+        if (resData.user) {
+          dispatch(setUser(resData.user));
+          localStorage.setItem('user', JSON.stringify(resData.user));
+        }
+        navigate("/admin/index")
       }
     }
   };

@@ -169,6 +169,31 @@ class userService {
             return { error: true, message: "Cannot edit patient exercise. Something went wrong" };
         }
     }
+
+    async getUserCreatedStatsByMonth() {
+        try {
+            const result = await axios.get(`${BASE_URL}/created_stats_by_month`);
+            if (result.data.error) {
+                return { error: true, message: result.data.message };
+            }
+            return { error: false, data: result.data };
+        } catch (err) {
+            console.log("error: ", err.message);
+            return { error: true, message: "Cannot get user stats. Something went wrong" };
+        }
+    }
+
+    async updateProfile(formData) {
+        try {
+            const result = await axios.post(`${BASE_URL}/update_profile`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            return { message: result.data.message, error: result.data.error, user: result.data.user };
+        } catch (err) {
+            console.log("error: ", err.message);
+            return { error: true, message: "Cannot update profile. Something went wrong" };
+        }
+    }
 }
 
 const user = new userService();

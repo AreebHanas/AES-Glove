@@ -3,7 +3,7 @@ import { Outlet, Navigate, } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 export default function PrivateRoute() {
-    const { email,name,id } = useSelector((state) => state.user);
+    const { email,name,id } = useSelector((state) => state.user.user);
     return (
       email != null ? <Outlet /> : <Navigate to="auth/login" replace/>
     )
