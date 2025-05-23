@@ -1,6 +1,6 @@
 import { Card, CardBody, CardTitle, Container, Row, Col } from "reactstrap";
-import userService from '../../servicers/userService.js'
-import exerciseService from "servicers/exerciseService.js";
+import userService from '../../servicers/admin/userService.js'
+import exerciseService from "../../servicers/admin/exerciseService.js";
 import { useEffect, useState } from "react";
 
 const Header = ({ refresh }) => {

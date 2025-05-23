@@ -1,10 +1,10 @@
-import Index from "views/Index.js";
-import Profile from "views/Profile.js";
-import Login from "views/Login.js";
-import Patient from "views/Patient.js";
-import Exercise from "views/Exercise.js";
-import LiveChart from "views/LiveChart.js";
-import PatientExercise from "views/PatientExercise.js";
+import Index from "views/admin/Index.js";
+import Profile from "views/admin/Profile.js";
+import Login from "views/admin/Login.js";
+import Patient from "views/admin/Patient.js";
+import Exercise from "views/admin/Exercise.js";
+import LiveChart from "views/admin/LiveChart.js";
+import PatientExercise from "views/admin/PatientExercise.js";
 
 var routes = [
   {
@@ -13,7 +13,8 @@ var routes = [
     icon: "ni ni-tv-2 text-primary",
     component: <Index />,
     layout: "/admin",
-    menuBar: true
+    menuBar: true,
+    role:"admin"
   },
   {
     path: "/exercise",
@@ -21,7 +22,8 @@ var routes = [
     icon: "ni ni-user-run text-blue",
     component: <Exercise />,
     layout: "/admin",
-    menuBar: true
+    menuBar: true,
+    role:"admin"
   },
   {
     path: "/user-profile",
@@ -29,7 +31,8 @@ var routes = [
     icon: "ni ni-single-02 text-yellow",
     component: <Profile />,
     layout: "/admin",
-    menuBar: false
+    menuBar: false,
+    role:"admin/user"
   },
   {
     path: "/patient",
@@ -37,7 +40,8 @@ var routes = [
     icon: "ni ni-single-02 text-red",
     component: <Patient />,
     layout: "/admin",
-    menuBar: true
+    menuBar: true,
+    role:"admin"
   },
   {
     path: "/live-chart",
@@ -45,7 +49,8 @@ var routes = [
     icon: "ni ni-single-02 text-yellow",
     component: <LiveChart />,
     layout: "/admin",
-    menuBar: false
+    menuBar: false,
+    role:"admin"
   },
   {
     path: "/patient-exercise",
@@ -53,7 +58,17 @@ var routes = [
     icon: "ni ni-single-02 text-yellow",
     component: <PatientExercise />,
     layout: "/admin",
-    menuBar: false
+    menuBar: false,
+    role:"admin/user"
+  },
+  {
+    path: "/patient-exercise",
+    name: "Assigned Exercise",
+    icon: "ni ni-user-run text-blue",
+    component: <PatientExercise />,
+    layout: "/user",
+    menuBar: true,
+    role:"user"
   },
   {
     path: "/login",
