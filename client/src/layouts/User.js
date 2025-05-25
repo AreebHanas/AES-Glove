@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, Route, Routes, Navigate } from "react-router-dom";
 // reactstrap components
 import { Container } from "reactstrap";
@@ -8,10 +8,12 @@ import AdminFooter from "components/Footers/AdminFooter.js";
 import Sidebar from "components/Sidebar/Sidebar.js";
 
 import routes from "routes.js";
+import Header from "components/Headers/Header";
 
-const Admin = (props) => {
+const User = (props) => {
   const mainContent = React.useRef(null);
   const location = useLocation();
+  const [isHeader, setIsHeader] = useState(false);
   
 
   React.useEffect(() => {
@@ -22,14 +24,11 @@ const Admin = (props) => {
 
   const getRoutes = (routes) => {
     return routes.map((prop, key) => {
-      if (prop.layout === "/admin") {
+      if (prop.layout === "/user") {
         return (
           <Route path={prop.path} element={prop.component} key={key} exact />
         );
-      } else {
-        return null;
-        // You can loop the user routes here based on the conditions
-      }
+      } 
     });
   };
 
@@ -51,7 +50,7 @@ const Admin = (props) => {
         {...props}
         routes={routes}
         logo={{
-          innerLink: "/admin/index",
+          innerLink: "/user/index",
           imgSrc: require("../assets/img/brand/argon-react.png"),
           imgAlt: "...",
         }}
@@ -61,6 +60,7 @@ const Admin = (props) => {
           {...props}
           brandText={getBrandText(props?.location?.pathname)}
         />
+          <Header />
         <Routes>
           {getRoutes(routes)}
           <Route path="*" element={<Navigate to="/auth/login" replace />} />
@@ -73,4 +73,4 @@ const Admin = (props) => {
   );
 };
 
-export default Admin;
+export default User;

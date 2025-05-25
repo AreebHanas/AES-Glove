@@ -1,63 +1,77 @@
-const activeRooms = new Map();
+import { WebSocketServer } from 'ws';
 
-const socketHandler = (io) => {
-  io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
+const activeRooms = new Map(); // roomId => Set of sockets
 
-    socket.on('join-room', (roomId) => {
-      console.log(`>>>>${socket.id} joined room: ${roomId}`);
-      socket.join(roomId);
+const socketHandler = (server) => {
+  const wss = new WebSocketServer({ server });
 
-      // if (!activeRooms.has(roomId)) {
-      //   startSendingRandomData(io, roomId);
-      // }
-    });
+  console.log("WebSocket server attached to HTTP server");
 
-    socket.on('sencor-data',(roomId, data)=>{
-      console.log(`Received data from ${socket.id} in room ${roomId}:`);
-      io.to(roomId).emit('test-data', data);
-    })
-    
-    socket.on('leave-room', (roomId) => {
-      socket.leave(roomId);
-      console.log(`>>>>${socket.id} left room: ${roomId}`);
-      cleanupRoomIfEmpty(io, roomId);
-    });
+  wss.on('connection', (ws) => {
+    console.log("User connected");
 
-    socket.on('disconnect', () => {
-      console.log('>>>>User disconnected:', socket.id);
-      setTimeout(() => {
-        const rooms = io.sockets.adapter.rooms;
-        for (const [roomId, _] of activeRooms) {
-          cleanupRoomIfEmpty(io, roomId);
+    ws.roomId = null;
+
+    ws.on('message', (message) => {
+      try {
+        const parsed = JSON.parse(message);
+        const { event, roomId, data } = parsed;
+
+        switch (event) {
+          case 'join-room':
+            ws.roomId = roomId;
+            if (!activeRooms.has(roomId)) {
+              activeRooms.set(roomId, new Set());
+            }
+            activeRooms.get(roomId).add(ws);
+            console.log(`${roomId}: client joined`);
+            break;
+
+          case 'leave-room':
+            if (ws.roomId && activeRooms.has(ws.roomId)) {
+              activeRooms.get(ws.roomId).delete(ws);
+              console.log(`${ws.roomId}: client left`);
+              cleanupRoomIfEmpty(ws.roomId);
+            }
+            ws.roomId = null;
+            break;
+
+          case 'sencor-data':
+            if (roomId && activeRooms.has(roomId)) {
+              const roomSockets = activeRooms.get(roomId);
+              for (const client of roomSockets) {
+                if (client.readyState === ws.OPEN) {
+                  client.send(JSON.stringify({ event: 'test-data', data }));
+                }
+              }
+              console.log(`Broadcasted to ${roomId}:`, data);
+            }
+            break;
+
+          default:
+            console.warn("Unknown event type:", event);
         }
-      }, 1000);
+      } catch (err) {
+        console.error("Invalid message format:", message);
+      }
+    });
+
+    ws.on('close', () => {
+      console.log("Client disconnected");
+      if (ws.roomId && activeRooms.has(ws.roomId)) {
+        activeRooms.get(ws.roomId).delete(ws);
+        cleanupRoomIfEmpty(ws.roomId);
+      }
     });
   });
-}
 
-// function startSendingRandomData(io, roomId) {
-//   const intervalId = setInterval(() => {
-//     const randomData = {
-//       timestamp: new Date(),
-//       value: Math.floor(Math.random() * 100),
-//     };
-//     io.to(roomId).emit('data', randomData);
-//     console.log(`Sent to ${roomId}:`, randomData);
-//   }, 2000);
-
-//   activeRooms.set(roomId, intervalId);
-// }
-
-function cleanupRoomIfEmpty(io, roomId) {
-  const room = io.sockets.adapter.rooms.get(roomId);
-  const isEmpty = !room || room.size === 0;
-
-  if (isEmpty && activeRooms.has(roomId)) {
-    clearInterval(activeRooms.get(roomId));
-    activeRooms.delete(roomId);
-    console.log(`Stopped sending to ${roomId} (room is empty)`);
+  function cleanupRoomIfEmpty(roomId) {
+    const room = activeRooms.get(roomId);
+    if (!room || room.size === 0) {
+      activeRooms.delete(roomId);
+      console.log(`Room ${roomId} is now empty and removed`);
+    }
   }
-}
+};
 
 export default socketHandler;

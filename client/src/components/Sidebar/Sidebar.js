@@ -53,8 +53,34 @@ import {
 } from "reactstrap";
 
 var ps;
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../../store/user/userSlice";
+
+const getAvatarUrl = (avatar) => {
+  if (!avatar) return require("../../assets/img/defaultUser.png");
+  if (typeof avatar === "string" && avatar.startsWith("/uploads/avatars")) {
+    return "http://localhost:8080" + avatar;
+  }
+  return avatar;
+};
 
 const Sidebar = (props) => {
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const user = useSelector((state) => state.user.user);
+    const avatar = getAvatarUrl(user.avatar);
+
+    const handleLogout = () => {
+    // Clear user state and localStorage
+    dispatch(setUser({}));
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("persist:root");
+    navigate("/auth/login");
+  };
+
   const [collapseOpen, setCollapseOpen] = useState();
   // verifies if routeName is the one active (in browser input)
   const activeRoute = (routeName) => {
@@ -71,19 +97,36 @@ const Sidebar = (props) => {
   // creates the links that appear in the left menu / Sidebar
   const createLinks = (routes) => {
     return routes.map((prop, key) => {
-      if (prop.menuBar === true) {
-        return (
-          <NavItem key={key}>
-            <NavLink
-              to={prop.layout + prop.path}
-              tag={NavLinkRRD}
-              onClick={closeCollapse}
-            >
-              <i className={prop.icon} />
-              {prop.name}
-            </NavLink>
-          </NavItem>
-        );
+      if (user.userRole === "admin") {
+        if (prop.menuBar === true && prop.role === "admin") {
+          return (
+            <NavItem key={key}>
+              <NavLink
+                to={prop.layout + prop.path}
+                tag={NavLinkRRD}
+                onClick={closeCollapse}
+              >
+                <i className={prop.icon} />
+                {prop.name}
+              </NavLink>
+            </NavItem>
+          );
+        }
+      } else if (user.userRole === "user") {
+        if (prop.menuBar === true && prop.role === "user") {
+          return (
+            <NavItem key={key}>
+              <NavLink
+                to={prop.layout + prop.path}
+                tag={NavLinkRRD}
+                onClick={closeCollapse}
+              >
+                <i className={prop.icon} />
+                {prop.name}
+              </NavLink>
+            </NavItem>
+          );
+        }
       }
       return null;
     });
@@ -131,27 +174,12 @@ const Sidebar = (props) => {
         {/* User */}
         <Nav className="align-items-center d-md-none">
           <UncontrolledDropdown nav>
-            <DropdownToggle nav className="nav-link-icon">
-              <i className="ni ni-bell-55" />
-            </DropdownToggle>
-            <DropdownMenu
-              aria-labelledby="navbar-default_dropdown_1"
-              className="dropdown-menu-arrow"
-              right
-            >
-              <DropdownItem>Action</DropdownItem>
-              <DropdownItem>Another action</DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem>Something else here</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
-          <UncontrolledDropdown nav>
             <DropdownToggle nav>
               <Media className="align-items-center">
                 <span className="avatar avatar-sm rounded-circle">
                   <img
                     alt="..."
-                    src={require("../../assets/img/theme/team-1-800x800.jpg")}
+                    src={avatar}
                   />
                 </span>
               </Media>
@@ -164,20 +192,7 @@ const Sidebar = (props) => {
                 <i className="ni ni-single-02" />
                 <span>My profile</span>
               </DropdownItem>
-              <DropdownItem to="/admin/user-profile" tag={Link}>
-                <i className="ni ni-settings-gear-65" />
-                <span>Settings</span>
-              </DropdownItem>
-              <DropdownItem to="/admin/user-profile" tag={Link}>
-                <i className="ni ni-calendar-grid-58" />
-                <span>Activity</span>
-              </DropdownItem>
-              <DropdownItem to="/admin/user-profile" tag={Link}>
-                <i className="ni ni-support-16" />
-                <span>Support</span>
-              </DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem href="#pablo" onClick={(e) => e.preventDefault()}>
+              <DropdownItem href="#pablo" onClick={(e) => {e.preventDefault(); handleLogout()}}>
                 <i className="ni ni-user-run" />
                 <span>Logout</span>
               </DropdownItem>

@@ -11,11 +11,8 @@ import {
   FormGroup,
 } from 'reactstrap';
 import PropTypes from 'prop-types';
-import exerciseService from 'servicers/exerciseService';
 import toast from 'react-hot-toast';
-import userService from '../servicers/userService';
-import user from '../servicers/userService';
-import { setCurrentUser } from 'store/user/userSlice';
+import userService from '../servicers/admin/userService';
 import { useSelector } from "react-redux";
 
 function AssignExercise(props) {

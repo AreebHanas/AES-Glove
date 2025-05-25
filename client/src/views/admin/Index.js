@@ -28,7 +28,7 @@ import {
 
 import Header from "components/Headers/Header.js";
 import { useSelector } from "react-redux";
-import userService from "../servicers/userService.js";
+import userService from "../../servicers/admin/userService.js";
 
 const Index = (props) => {
   const [activeNav, setActiveNav] = useState(1);

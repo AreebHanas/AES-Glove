@@ -18,7 +18,7 @@ import {
 } from "reactstrap";
 import Header from "components/Headers/Header.js";
 import AddModal from "variables/ExerciseModal.js";
-import exerciseService from "servicers/exerciseService"; // make sure the file is named correctly!
+import exerciseService from "servicers/admin/exerciseService";
 import ConformationModal from "variables/ConformationModal.js";
 import toast from "react-hot-toast";
 

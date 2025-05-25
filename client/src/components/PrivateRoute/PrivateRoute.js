@@ -2,9 +2,11 @@ import React from "react";
 import { Outlet, Navigate, } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-export default function PrivateRoute() {
-    const { email,name,id } = useSelector((state) => state.user.user);
+export default function PrivateRoute({ allowedRoles }) {
+    const { email, userRole } = useSelector((state) => state.user.user);
+    console.log('privateRoute',userRole)
+    const isAllowed = email && (!allowedRoles || allowedRoles.includes(userRole));
     return (
-      email != null ? <Outlet /> : <Navigate to="auth/login" replace/>
-    )
+      isAllowed ? <Outlet /> : <Navigate to="/auth/login" replace />
+    );
   }

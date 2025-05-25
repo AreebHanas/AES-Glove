@@ -18,12 +18,10 @@ import {
 } from "reactstrap";
 // core components
 import Header from "components/Headers/Header.js";
-// import { useNavigate } from "react-router-dom";
 import AssignExercise from "variables/AssignExercise";
-import userService from "servicers/userService";
+import userService from "servicers/admin/userService";
 import ConformationModal from "variables/ConformationModal.js";
 import toast from "react-hot-toast";
-// import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 
 const PatientExercise = () => {

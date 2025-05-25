@@ -21,7 +21,6 @@ import { useLocation, Route, Routes, Navigate } from "react-router-dom";
 import { Container, Row, Col } from "reactstrap";
 
 // core components
-// import AuthNavbar from "components/Navbars/AuthNavbar.js";
 import AuthFooter from "components/Footers/AuthFooter.js";
 
 import routes from "routes.js";
@@ -57,7 +56,6 @@ const Auth = (props) => {
   return (
     <>
       <div className="main-content" ref={mainContent}>
-        {/* <AuthNavbar /> */}
         <div className="header bg-gradient-info py-7 py-lg-8">
           <Container>
             <div className="header-body text-center mb-7">

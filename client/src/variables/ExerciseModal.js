@@ -11,7 +11,7 @@ import {
   FormGroup,
 } from 'reactstrap';
 import PropTypes from 'prop-types';
-import exerciseService from 'servicers/exerciseService';
+import exerciseService from 'servicers/admin/exerciseService.js';
 import toast from 'react-hot-toast';
 
 function AddModal(props) {
