@@ -7,10 +7,10 @@ import PrivateRoute from 'components/PrivateRoute/PrivateRoute';
 function App(){
     return (
         <Routes>
-          <Route element={<PrivateRoute/>}>
+          <Route element={<PrivateRoute allowedRoles={["admin"]}/>}> 
             <Route path="/admin/*" element={<AdminLayout /> } />
           </Route>
-          <Route element={<PrivateRoute/>}>
+          <Route element={<PrivateRoute allowedRoles={["user"]}/>}> 
             <Route path="/user/*" element={<UserLayout /> } />
           </Route>
           <Route path="/auth/*" element={  <AuthLayout />} />

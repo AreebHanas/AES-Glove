@@ -1,9 +1,8 @@
 import app from './app.js';
 import http from 'http';
-import { Server } from 'socket.io';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import socketHandler from './routes/socketHandler.js'; // make sure this path is correct
+import mongoose from 'mongoose';
+import socketHandler from './routes/socketHandler.js';
 
 dotenv.config();
 
@@ -25,17 +24,10 @@ async function startServer() {
     await connectDB();
 
     const server = http.createServer(app);
-    const io = new Server(server, {
-        cors: {
-            origin: '*',
-            methods: ['GET', 'POST'],
-        },
-    });
-
-    socketHandler(io);
+    socketHandler(server);
 
     server.listen(port, () => {
-        console.log(`>>> Server with sockets listening on port: ${port}`);
+        console.log(`>>> HTTP + WebSocket server running on port ${port}`);
     });
 }
 

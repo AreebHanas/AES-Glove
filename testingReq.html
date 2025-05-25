@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sensor Data Simulator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    button {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #log {
+      text-align: left;
+      margin: 2rem auto;
+      max-width: 600px;
+      background: #f4f4f4;
+      padding: 1rem;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Sensor Data Simulator</h1>
+  <button id="start">Start Sending</button>
+  <p id="status">Status: Not connected</p>
+  <pre id="log"></pre>
+
+  <script>
+    let socket;
+    let interval;
+    const roomId = '682ecf8e63b429051ab6389b'; // Update as needed
+    const statusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
+
+    // Flex values now capped between 1 and 100
+    function getRandomFlexValue() {
+      return Math.floor(Math.random() * 100) + 1;
+    }
+
+    function getSensorPayload() {
+      return {
+        Battery: "Not Configured",
+        Status: "Active",
+        Flex: {
+          PF_Flex: getRandomFlexValue(),
+          RF_Flex: getRandomFlexValue(),
+          MF_Flex: getRandomFlexValue(),
+          IF_Flex: getRandomFlexValue(),
+          TF_Flex: getRandomFlexValue(),
+          WF_Flex: getRandomFlexValue(),
+          EF_Flex: getRandomFlexValue()
+        },
+        sensors: [
+          {
+            HR: Math.floor(Math.random() * (100 - 60)) + 60, // Heart Rate: 60–100
+            SPO2: Math.floor(Math.random() * (100 - 95)) + 95 // SPO2: 95–100
+          },
+          {
+            EMG: (Math.random() * 5).toFixed(5)
+          },
+          {
+            Pressure: (Math.random() * 5).toFixed(5)
+          }
+        ]
+      };
+    }
+
+    document.getElementById('start').addEventListener('click', () => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        console.log("Already connected.");
+        statusEl.textContent = "Status: Already connected";
+        return;
+      }
+
+      // Fix the WebSocket URL scheme — should be ws:// not http://
+      socket = new WebSocket('ws://localhost:8080');
+
+      socket.addEventListener('open', () => {
+        statusEl.textContent = "Status: Connected";
+        console.log("Connected to WebSocket server");
+
+        socket.send(JSON.stringify({
+          event: 'join-room',
+          roomId
+        }));
+
+        interval = setInterval(() => {
+          const data = getSensorPayload();
+
+          const payload = {
+            event: 'sencor-data', // typo kept as per backend
+            roomId,
+            data
+          };
+
+          socket.send(JSON.stringify(payload));
+          console.log("Sent:", payload);
+          logEl.textContent += `Sent: ${JSON.stringify(data)}\n`;
+
+          // auto scroll log
+          logEl.scrollTop = logEl.scrollHeight;
+        }, 1000);
+      });
+
+      socket.addEventListener('close', () => {
+        clearInterval(interval);
+        statusEl.textContent = "Status: Disconnected";
+        console.warn("Connection closed");
+      });
+
+      socket.addEventListener('error', (err) => {
+        console.error("WebSocket error:", err);
+        statusEl.textContent = "Status: Error";
+      });
+    });
+  </script>
+
+</body>
+</html>

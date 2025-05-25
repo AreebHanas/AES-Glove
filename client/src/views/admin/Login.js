@@ -95,7 +95,11 @@ const Login = () => {
           dispatch(setUser(resData.user));
           localStorage.setItem('user', JSON.stringify(resData.user));
         }
-        navigate("/admin/index")
+        if (resData.user.userRole === "user") {
+          navigate("/user/index")
+        } else if (resData.user.userRole === "admin") {
+          navigate("/admin/index")
+        }
       }
     }
   };

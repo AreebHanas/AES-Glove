@@ -10,14 +10,13 @@ import { io } from "socket.io-client";
 const LiveChart = ()=>{
 
   const SOCKET_URL = 'http://localhost:8080'; // 👈 or your backend URL
-  // const ROOM_ID = 'room2';
 
   const [socket, setSocket] = useState(null);
   const [dataLog, setDataLog] = useState([]);
   const { currentUser } = useSelector(state => state.user);
-  console.log(currentUser)
   const [data, setData] = useState([]);
   // adjust this values as per your need
+  console.log(dataLog)
   // 1st flex
   const classifyFlex01 ={
     low: 25,
@@ -42,15 +41,32 @@ const LiveChart = ()=>{
     medium: 70,
     high: 90,
   }
+  // 5th flex
+  const classifyFlex05 ={
+    low: 30,
+    medium: 60,
+    high: 85,
+  }
+  // 6th flex
+  const classifyFlex06 ={
+    low: 35,
+    medium: 65,
+    high: 90,
+  }
+  // 7th flex
+  const classifyFlex07 ={
+    low: 40,
+    medium: 70,
+    high: 95,
+  }
 
-   // 1st flex
-   const classifyFlexValue01 = (value) => {
+  // 1st flex
+  const classifyFlexValue01 = (value) => {
     if (value < classifyFlex01.low) return "No Bend";
     if (value < classifyFlex01.medium) return "Almost No Bend";
     if (value < classifyFlex01.high) return "Almost Full Bend";
     return "Full Bend";
   };
-
   // 2nd flex
   const classifyFlexValue02 = (value) => {
     if (value < classifyFlex02.low) return "No Bend";
@@ -58,7 +74,6 @@ const LiveChart = ()=>{
     if (value < classifyFlex02.high) return "Almost Full Bend";
     return "Full Bend";
   };
-
   // 3rd flex
   const classifyFlexValue03 = (value) => {
     if (value < classifyFlex03.low) return "No Bend";
@@ -66,12 +81,32 @@ const LiveChart = ()=>{
     if (value < classifyFlex03.high) return "Almost Full Bend";
     return "Full Bend";
   };
-
-  // 4st flex
+  // 4th flex
   const classifyFlexValue04 = (value) => {
     if (value < classifyFlex04.low) return "No Bend";
     if (value < classifyFlex04.medium) return  "Almost No Bend";
     if (value < classifyFlex04.high) return "Almost Full Bend";
+    return "Full Bend";
+  };
+  // 5th flex
+  const classifyFlexValue05 = (value) => {
+    if (value < classifyFlex05.low) return "No Bend";
+    if (value < classifyFlex05.medium) return  "Almost No Bend";
+    if (value < classifyFlex05.high) return "Almost Full Bend";
+    return "Full Bend";
+  };
+  // 6th flex
+  const classifyFlexValue06 = (value) => {
+    if (value < classifyFlex06.low) return "No Bend";
+    if (value < classifyFlex06.medium) return  "Almost No Bend";
+    if (value < classifyFlex06.high) return "Almost Full Bend";
+    return "Full Bend";
+  };
+  // 7th flex
+  const classifyFlexValue07 = (value) => {
+    if (value < classifyFlex07.low) return "No Bend";
+    if (value < classifyFlex07.medium) return  "Almost No Bend";
+    if (value < classifyFlex07.high) return "Almost Full Bend";
     return "Full Bend";
   };
 
@@ -82,105 +117,135 @@ const LiveChart = ()=>{
     "Full Bend": 4
   };
 
-  const [flexData, setFlexData] = useState({
-    flex01:{
-      data:[].map(val=>categoryMapping[val]),
+  // Flex graph (map directly from Flex keys)
+  const flexSensorKeys = [
+     "EF_Flex", "IF_Flex", "MF_Flex", "PF_Flex", "RF_Flex",
+    "TF_Flex", "WF_Flex"
+  ];
+  const flexSensorNames = [
+    "1st Finger", "2nd Finger", "3rd Finger", "4th Finger",
+    "5th Finger", "6th Finger", "7th Finger"
+  ];
+  const flexClassifiers = [
+    classifyFlexValue01, classifyFlexValue02, classifyFlexValue03, classifyFlexValue04,
+    classifyFlexValue05, classifyFlexValue06, classifyFlexValue07
+  ];
+  const [flexSeries, setFlexSeries] = useState(
+    flexSensorNames.map((name) => ({ name, data: [] }))
+  );
+  const flexOptions = {
+    chart: {
+      id: "realtime-flex",
+      height: 350,
+      type: "line",
+      animations: {
+        enabled: true,
+        easing: "linear",
+        dynamicAnimation: { speed: 1000 },
+      },
+      toolbar: { show: false },
+      zoom: { enabled: false },
     },
-    flex02:{
-      data:[].map(val=>categoryMapping[val]),
+    dataLabels: { enabled: false },
+    colors: ["#FF0000", "#00FF00", "#0000FF", "#FFA500"],
+    stroke: { curve: "smooth", width: [5, 5, 5, 5] },
+    title: { text: "Flex angle", align: "left" },
+    markers: { size: 0 },
+    xaxis: { type: "numeric" },
+    yaxis: {
+      labels: {
+        formatter: (value) => {
+          const reverseMapping = {
+            1: "No Bend",
+            2: "Almost No Bend",
+            3: "Almost Full Bend",
+            4: "Full Bend",
+          };
+          return reverseMapping[value];
+        },
+      },
+      min: 1,
+      max: 4,
     },
-    flex03:{
-      data:[].map(val=>categoryMapping[val]),
+    legend: {
+      show: true,
+      position: "top",
+      onItemClick: { toggleDataSeries: true },
     },
-    flex04:{
-      data:[].map(val=>categoryMapping[val]),
-    },
-  })
-  
+  };
 
-  let time = 0;
-  const wsRef = useRef(null);
+  // Pressure and EMG data
+  const [pressureData, setPressureData] = useState([]);
+  const [emgData, setEmgData] = useState([]);
+   const XAXISRANGE = 5;
 
-  // Range for X-axis
-  const XAXISRANGE = 5;
-  // Flex graph
-  const [flexState, setFlexState] = useState({
-    series: [{
-      name:"1st Finger",
-      data: flexData.flex01.data.slice(),
-    },{
-      name:"2nd Finger",
-      data: flexData.flex02.data.slice(),
-    },{
-      name:"3rd Finger",
-      data: flexData.flex03.data.slice(),
-    },{
-      name:"4th Finger",
-      data: flexData.flex04.data.slice(),
-    },
-  ],
+  // Pressure chart state
+  const [pressureState, setPressureState] = useState({
+    series: [{ name: 'Pressure', data: [] }],
     options: {
       chart: {
-        id: 'realtime',
+        id: 'realtime-pressure',
         height: 350,
         type: 'line',
         animations: {
           enabled: true,
           easing: 'linear',
-          dynamicAnimation: {
-            speed: 1000
-          }
+          dynamicAnimation: { speed: 1000 }
         },
-        toolbar: {
-          show: false
-        },
-        zoom: {
-          enabled: false
-        }
+        toolbar: { show: false },
+        zoom: { enabled: false }
       },
-      dataLabels: {
-        enabled: false
-      },
-      colors: ["#FF0000", "#00FF00", "#0000FF", "#FFA500"],
-      stroke: {
-        curve: 'smooth',
-        width: [5,5,5,5]
-      },
-      title: {
-        text: 'Flex angle',
-        align: 'left'
-      },
-      markers: {
-        size: 0
-      },
+      dataLabels: { enabled: false },
+      stroke: { curve: 'smooth', width: 3 },
+      title: { text: 'Pressure', align: 'left' },
+      markers: { size: 0 },
       xaxis: {
         type: 'numeric',
+        range: XAXISRANGE,
+        floating:false,
+        stepSize:1,
+        min:0,
+        mix:0
       },
-      yaxis: {
-        labels: {
-          formatter: (value) => {
-            const reverseMapping = {
-              1: "No Bend",
-              2: "Almost No Bend",
-              3: "Almost Full Bend",
-              4: "Full Bend",
-            };
-            return reverseMapping[value];
-          },
-        },
-        min: 1,
-        max: 4,
-      },
-      legend: {
-        show: true,
-        position: 'top',
-        onItemClick: {
-          toggleDataSeries: true
-        },
-      },
+      yaxis: { title: { text: 'Pressure' } },
+      legend: { show: false },
     },
   });
 
+  // EMG chart state
+  const [emgState, setEmgState] = useState({
+    series: [{ name: 'EMG', data: [] }],
+    options: {
+      chart: {
+        id: 'realtime-emg',
+        height: 350,
+        type: 'line',
+        animations: {
+          enabled: true,
+          easing: 'linear',
+          dynamicAnimation: { speed: 1000 }
+        },
+        toolbar: { show: false },
+        zoom: { enabled: false }
+      },
+      dataLabels: { enabled: false },
+      stroke: { curve: 'smooth', width: 3 },
+      title: { text: 'EMG', align: 'left' },
+      markers: { size: 0 },
+      xaxis: {
+        type: 'numeric',
+        range: XAXISRANGE,
+        floating:false,
+        stepSize:1,
+        min:0,
+        mix:0
+      },
+      yaxis: { title: { text: 'EMG' } },
+      legend: { show: false },
+    },
+  });
+
+  // Range for X-axis
   // HR graph
   const [state, setState] = useState({
     series: [{
@@ -236,159 +301,107 @@ const LiveChart = ()=>{
     },
   });
   
-
-  // useEffect(()=>{
-  //   wsRef.current = new WebSocket(URL);
-
-  //   const ws = wsRef.current;
-
-  //   const timer = setInterval(() => {
-  //     time = time + 1
-  //   }, 1000);
-
-  //   // Handle connection event
-  //   ws.onopen = () => {
-  //       console.log("Connected to WebSocket server");
-  //     };
-
-    
-  //   // WebSocket message received
-  //   ws.onmessage = (event) => {
-  //       const message = JSON.parse(event.data);
-  //       console.log("Received data:", message);
-  
-  //       if (message?.sensor_value?.sensors[1].HR) {
-  //         const sensorValue = message.sensor_value.sensors[1].HR;
-  
-  //         setData((prevData) => {
-  //           const updatedData = [...prevData];
-  //           updatedData.push({
-  //             x: time,
-  //             y: sensorValue,
-  //           });
-  
-  //           // Update the series with new data
-  //           setState((prevState) => ({
-  //             ...prevState,
-  //             series: [
-  //               {
-  //                 data: updatedData,
-  //               },
-  //             ],
-  //           }));
-  
-  //           return updatedData;
-  //         });
-  //       }
-  //       const flex = message?.sensor_value?.sensors;
-  //       if (flex && flex[0]){
-  //           const flexValues = message[0];
-  //           setFlexData((prev) => {
-  //             const updatedFlexData = {
-  //               flex01: {
-  //                 data: [
-  //                   ...(prev.flex01?.data || []),
-  //                   { x: time, y: categoryMapping[classifyFlexValue01(flexValues.IF_Flex, "flex01")] },
-  //                 ],
-  //               },
-  //               flex02: {
-  //                 data: [
-  //                   ...(prev.flex02?.data || []),
-  //                   { x: time, y: categoryMapping[classifyFlexValue02(flexValues.MF_Flex, "flex02")] },
-  //                 ],
-  //               },
-  //               flex03: {
-  //                 data: [
-  //                   ...(prev.flex03?.data || []),
-  //                   { x: time, y: categoryMapping[classifyFlexValue03(flexValues.PF_Flex, "flex03")] },
-  //                 ],
-  //               },
-  //               flex04: {
-  //                 data: [
-  //                   ...(prev.flex04?.data || []),
-  //                   { x: time, y: categoryMapping[classifyFlexValue04(flexValues.RF_Flex, "flex04")] },
-  //                 ],
-  //               },
-  //             };
-          
-  //             // Update `flexState` while preserving visibility state
-  //             setFlexState((prevState) => {
-  //               const updatedSeries = prevState.series.map((series, index) => {
-  //                 const seriesKey = `flex0${index + 1}`;
-  //                 return {
-  //                   ...series,
-  //                   data: updatedFlexData[seriesKey]?.data || series.data,
-  //                 };
-  //               });
-          
-  //               return {
-  //                 ...prevState,
-  //                 series: updatedSeries,
-  //                 options: {
-  //                   ...prevState.options,
-  //                   chart: {
-  //                     ...prevState.options.chart,
-  //                     events: {
-  //                       legendClick: (chartContext, seriesIndex) => {
-  //                         const visibility = chartContext.w.globals.collapsedSeriesIndices.includes(seriesIndex);
-  //                         if (visibility) {
-  //                           chartContext.toggleSeries(chartContext.w.globals.seriesNames[seriesIndex]);
-  //                         }
-  //                       },
-  //                     },
-  //                   },
-  //                 },
-  //               };
-  //             });
-          
-  //             return updatedFlexData;
-  //           });
-  //       }       
-  //     };
-  
-  //   // WebSocket connection closed
-  //   ws.onclose = (event) => {
-  //       console.log("WebSocket connection closed:", event);
-  //     };
-  
-  //     // Handle WebSocket errors
-  //     ws.onerror = (error) => {
-  //       console.error("WebSocket error:", error);
-  //     };
-  
-  //     // Cleanup on component unmount
-  //     return () => {
-  //       ws.close();
-  //       clearInterval(timer);
-  //       console.log("WebSocket connection closed on unmount");
-  //     };
-
-  // },[])
+  const wsRef = useRef(null);
 
   useEffect(() => {
-    const newSocket = io(SOCKET_URL, {
-      transports: ['websocket'],
-    });
-    setSocket(newSocket);
+  const ws = new WebSocket(SOCKET_URL); // Use your defined URL
+  wsRef.current = ws;
 
-    // Join room after connecting
-    newSocket.on('connect', () => {
-      // console.log('Connected:', newSocket.id);
-      newSocket.emit('join-room', currentUser.id);
-    });
+  // Set your roomId here (can be dynamic or hardcoded)
+  const roomId = currentUser.id; // Change as needed
 
-    // Handle data from backend
-    newSocket.on('data', (incomingData) => {
-      // console.log('Data received:', incomingData);
-      setDataLog((prev) => [...prev, incomingData]);
-    });
+  let currentTime = 0;
+  const timer = setInterval(() => {
+    currentTime += 1;
+  }, 1000);
 
-    // Cleanup on unmount
-    return () => {
-      newSocket.emit('leave-room', currentUser.id);
-      newSocket.disconnect();
-    };
-  }, []);
+  ws.onopen = () => {
+    console.log("Connected to WebSocket server");
+    // Join the room after connection
+    ws.send(JSON.stringify({ event: "join-room", roomId }));
+  };
+
+  ws.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    if (message.event !== 'test-data') return;
+    const { data } = message;
+    // Flex sensors
+    if (data.Flex) {
+      setDataLog(prev => ([...prev, { ...data }]));
+    }
+    // Pressure
+    if (Array.isArray(data.sensors) && data.sensors[2]?.Pressure !== undefined) {
+      setPressureData(prev => {
+        const updated = [...prev, { x: currentTime, y: Number(data.sensors[2].Pressure) }];
+        setPressureState(ps => ({
+          ...ps,
+          series: [{ ...ps.series[0], data: updated }]
+        }));
+        return updated;
+      });
+    }
+    // EMG
+    if (Array.isArray(data.sensors) && data.sensors[1]?.EMG !== undefined) {
+      setEmgData(prev => {
+        const updated = [...prev, { x: currentTime, y: Number(data.sensors[1].EMG) }];
+        setEmgState(es => ({
+          ...es,
+          series: [{ ...es.series[0], data: updated }]
+        }));
+        return updated;
+      });
+    }
+    // HR (keep your original HR logic)
+    const hr = Array.isArray(data.sensors) && data.sensors[0]?.HR;
+    if (hr !== undefined) {
+      setData((prev) => {
+        const updated = [...prev, { x: currentTime, y: hr }];
+        setState((prevState) => ({
+          ...prevState,
+          series: [{ ...prevState.series[0], data: updated }]
+        }));
+        return updated;
+      });
+    }
+  };
+
+  ws.onerror = (err) => {
+    console.error("WebSocket error:", err);
+  };
+
+  ws.onclose = () => {
+    console.log("WebSocket connection closed");
+  };
+
+  return () => {
+    clearInterval(timer);
+    ws.close();
+  };
+}, []);
+
+  // Update flex graph from socket dataLog
+  useEffect(() => {
+    if (!dataLog.length) return;
+    const last = dataLog[dataLog.length - 1];
+    const flex = last?.Flex;
+    if (!flex) return;
+    setFlexSeries((prev) =>
+      flexSensorKeys.map((key, idx) => ({
+        name: flexSensorNames[idx],
+        data: [
+          ...(prev[idx]?.data || []),
+          {
+            x: prev[idx]?.data?.length ? prev[idx].data[prev[idx].data.length - 1].x + 1 : 1,
+            y: categoryMapping[
+              flexClassifiers[idx](flex[key])
+            ],
+          },
+        ].slice(-XAXISRANGE),
+      }))
+    );
+  }, [dataLog]);
+
+
 
     return (
       <>
@@ -397,8 +410,14 @@ const LiveChart = ()=>{
           <div id="chart" className="mt-5">
             <ReactApexChart options={state.options} series={state.series} type="line" height={350} />
           </div>
-          <div id="html-dist">
-            <ReactApexChart options={flexState.options} series={flexState.series} type="line" height={350} />
+          <div id="flex-chart">
+            <ReactApexChart options={flexOptions} series={flexSeries} type="line" height={350} />
+          </div>
+          <div id="pressure-chart">
+            <ReactApexChart options={pressureState.options} series={pressureState.series} type="line" height={350} />
+          </div>
+          <div id="emg-chart">
+            <ReactApexChart options={emgState.options} series={emgState.series} type="line" height={350} />
           </div>
         </Container>
       </>

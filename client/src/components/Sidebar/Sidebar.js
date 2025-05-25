@@ -98,7 +98,7 @@ const Sidebar = (props) => {
   const createLinks = (routes) => {
     return routes.map((prop, key) => {
       if (user.userRole === "admin") {
-        if (prop.menuBar === true && (prop.role === "admin" || prop.role === "admin/user")) {
+        if (prop.menuBar === true && prop.role === "admin") {
           return (
             <NavItem key={key}>
               <NavLink
@@ -113,7 +113,7 @@ const Sidebar = (props) => {
           );
         }
       } else if (user.userRole === "user") {
-        if (prop.menuBar === true && (prop.role === "user" || prop.role === "admin/user")) {
+        if (prop.menuBar === true && prop.role === "user") {
           return (
             <NavItem key={key}>
               <NavLink

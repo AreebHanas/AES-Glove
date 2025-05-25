@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, Route, Routes, Navigate } from "react-router-dom";
 // reactstrap components
 import { Container } from "reactstrap";
@@ -8,10 +8,12 @@ import AdminFooter from "components/Footers/AdminFooter.js";
 import Sidebar from "components/Sidebar/Sidebar.js";
 
 import routes from "routes.js";
+import Header from "components/Headers/Header";
 
 const User = (props) => {
   const mainContent = React.useRef(null);
   const location = useLocation();
+  const [isHeader, setIsHeader] = useState(false);
   
 
   React.useEffect(() => {
@@ -58,6 +60,7 @@ const User = (props) => {
           {...props}
           brandText={getBrandText(props?.location?.pathname)}
         />
+          <Header />
         <Routes>
           {getRoutes(routes)}
           <Route path="*" element={<Navigate to="/auth/login" replace />} />

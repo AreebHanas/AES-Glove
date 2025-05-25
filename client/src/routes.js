@@ -6,6 +6,10 @@ import Exercise from "views/admin/Exercise.js";
 import LiveChart from "views/admin/LiveChart.js";
 import PatientExercise from "views/admin/PatientExercise.js";
 
+// user components
+import UserIndex from "views/user/Index.js";
+import UserExercise from "views/user/Exercise.js";
+
 var routes = [
   {
     path: "/index",
@@ -26,13 +30,13 @@ var routes = [
     role:"admin"
   },
   {
-    path: "/user-profile",
+    path: "/profile",
     name: "User Profile",
     icon: "ni ni-single-02 text-yellow",
     component: <Profile />,
     layout: "/admin",
     menuBar: false,
-    role:"admin/user"
+    role:"admin"
   },
   {
     path: "/patient",
@@ -59,17 +63,41 @@ var routes = [
     component: <PatientExercise />,
     layout: "/admin",
     menuBar: false,
-    role:"admin/user"
+    role:"admin"
   },
+  // user routes
   {
-    path: "/patient-exercise",
-    name: "Assigned Exercise",
-    icon: "ni ni-user-run text-blue",
-    component: <PatientExercise />,
+    path: "/index",
+    name: "Dashboard",
+    icon: "ni ni-tv-2 text-primary",
+    component: <UserIndex />,
     layout: "/user",
     menuBar: true,
     role:"user"
   },
+  {
+    path: "/user-exercise",
+    name: "Assigned Exercise",
+    icon: "ni ni-user-run text-blue",
+    component: <UserExercise />,
+    layout: "/user",
+    menuBar: true,
+    role:"user"
+  },
+  {
+    path: "/profile",
+    name: "User Profile",
+    icon: "ni ni-single-02 text-yellow",
+    component: <Profile />,
+    layout: "/user",
+    menuBar: false,
+    role:"user"
+  },
+
+
+
+
+
   {
     path: "/login",
     name: "Login",
