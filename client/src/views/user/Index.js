@@ -26,7 +26,7 @@ import {
   chartExample2,
 } from "variables/charts.js";
 
-import Header from "components/Headers/Header.js";
+import User from "components/Headers/User.js";
 import { useSelector } from "react-redux";
 import userService from "../../servicers/admin/userService.js";
 
@@ -86,110 +86,111 @@ const Index = (props) => {
 
   return (
     <>
-      {/* Page content */}
-      <Container className="mt--7" fluid>
-        <Row>
-          <Col className="mb-5 mb-xl-0" xl="8">
-            <Card className="bg-gradient-default shadow">
-              <CardHeader className="bg-transparent">
-                <Row className="align-items-center">
-                  <div className="col">
-                    <h6 className="text-uppercase text-light ls-1 mb-1">
-                      Overview
-                    </h6>
-                    <h2 className="text-white mb-0">Sales value</h2>
+      <User />
+        {/* Page content */}
+        <Container className="mt-7" fluid>
+          <Row>
+            <Col className="mb-5 mb-xl-0" xl="8">
+              <Card className="bg-gradient-default shadow">
+                <CardHeader className="bg-transparent">
+                  <Row className="align-items-center">
+                    <div className="col">
+                      <h6 className="text-uppercase text-light ls-1 mb-1">
+                        Overview
+                      </h6>
+                      <h2 className="text-white mb-0">Sales value</h2>
+                    </div>
+                    <div className="col">
+                      <Nav className="justify-content-end" pills>
+                        <NavItem>
+                          <NavLink
+                            className={classnames("py-2 px-3", {
+                              active: activeNav === 1,
+                            })}
+                            href="#pablo"
+                            onClick={(e) => toggleNavs(e, 1)}
+                          >
+                            <span className="d-none d-md-block">Month</span>
+                            <span className="d-md-none">M</span>
+                          </NavLink>
+                        </NavItem>
+                        <NavItem>
+                          <NavLink
+                            className={classnames("py-2 px-3", {
+                              active: activeNav === 2,
+                            })}
+                            data-toggle="tab"
+                            href="#pablo"
+                            onClick={(e) => toggleNavs(e, 2)}
+                          >
+                            <span className="d-none d-md-block">Week</span>
+                            <span className="d-md-none">W</span>
+                          </NavLink>
+                        </NavItem>
+                      </Nav>
+                    </div>
+                  </Row>
+                </CardHeader>
+                <CardBody>
+                  {/* Chart */}
+                  <div className="chart">
+                    <Line
+                      data={chartExample1[chartExample1Data]}
+                      options={chartExample1.options}
+                      getDatasetAtEvent={(e) => console.log(e)}
+                    />
                   </div>
-                  <div className="col">
-                    <Nav className="justify-content-end" pills>
-                      <NavItem>
-                        <NavLink
-                          className={classnames("py-2 px-3", {
-                            active: activeNav === 1,
-                          })}
-                          href="#pablo"
-                          onClick={(e) => toggleNavs(e, 1)}
-                        >
-                          <span className="d-none d-md-block">Month</span>
-                          <span className="d-md-none">M</span>
-                        </NavLink>
-                      </NavItem>
-                      <NavItem>
-                        <NavLink
-                          className={classnames("py-2 px-3", {
-                            active: activeNav === 2,
-                          })}
-                          data-toggle="tab"
-                          href="#pablo"
-                          onClick={(e) => toggleNavs(e, 2)}
-                        >
-                          <span className="d-none d-md-block">Week</span>
-                          <span className="d-md-none">W</span>
-                        </NavLink>
-                      </NavItem>
-                    </Nav>
-                  </div>
-                </Row>
-              </CardHeader>
-              <CardBody>
-                {/* Chart */}
-                <div className="chart">
-                  <Line
-                    data={chartExample1[chartExample1Data]}
-                    options={chartExample1.options}
-                    getDatasetAtEvent={(e) => console.log(e)}
-                  />
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col xl="4">
-            <Card className="shadow">
-              <CardHeader className="bg-transparent">
-                <Row className="align-items-center">
-                  <div className="col">
-                    <h6 className="text-uppercase text-muted ls-1 mb-1">
-                      Growth
-                    </h6>
-                    <h2 className="mb-0">Patient per month</h2>
-                  </div>
-                </Row>
-              </CardHeader>
-              <CardBody>
-                {/* Chart */}
-                <div className="chart">
-                  <Bar
-                    data={userBarData}
-                    options={{
-                      ...chartExample2.options,
-                      scales: {
-                        ...chartExample2.options.scales,
-                        yAxes: [
-                          {
-                            ...((
-                              chartExample2.options.scales &&
-                              chartExample2.options.scales.yAxes &&
-                              chartExample2.options.scales.yAxes[0]
-                            ) ||
-                              {}),
-                            ticks: {
-                              min: 0,
-                              max: 100,
-                              stepSize: 10,
-                              callback: function (value) {
-                                return value;
+                </CardBody>
+              </Card>
+            </Col>
+            <Col xl="4">
+              <Card className="shadow">
+                <CardHeader className="bg-transparent">
+                  <Row className="align-items-center">
+                    <div className="col">
+                      <h6 className="text-uppercase text-muted ls-1 mb-1">
+                        Growth
+                      </h6>
+                      <h2 className="mb-0">Patient per month</h2>
+                    </div>
+                  </Row>
+                </CardHeader>
+                <CardBody>
+                  {/* Chart */}
+                  <div className="chart">
+                    <Bar
+                      data={userBarData}
+                      options={{
+                        ...chartExample2.options,
+                        scales: {
+                          ...chartExample2.options.scales,
+                          yAxes: [
+                            {
+                              ...((
+                                chartExample2.options.scales &&
+                                chartExample2.options.scales.yAxes &&
+                                chartExample2.options.scales.yAxes[0]
+                              ) ||
+                                {}),
+                              ticks: {
+                                min: 0,
+                                max: 100,
+                                stepSize: 10,
+                                callback: function (value) {
+                                  return value;
+                                },
                               },
                             },
-                          },
-                        ],
-                      },
-                    }}
-                  />
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
+                          ],
+                        },
+                      }}
+                    />
+                  </div>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
     </>
   );
 };

@@ -5,6 +5,7 @@ import Patient from "views/admin/Patient.js";
 import Exercise from "views/admin/Exercise.js";
 import LiveChart from "views/admin/LiveChart.js";
 import PatientExercise from "views/admin/PatientExercise.js";
+import History from "views/admin/History.js";
 
 // user components
 import UserIndex from "views/user/Index.js";
@@ -57,6 +58,15 @@ var routes = [
     role:"admin"
   },
   {
+    path: "/history",
+    name: "History",
+    icon: "ni ni-single-02 text-yellow",
+    component: <History />,
+    layout: "/admin",
+    menuBar: false,
+    role:"admin"
+  },
+  {
     path: "/patient-exercise",
     name: "Patient Exercise",
     icon: "ni ni-single-02 text-yellow",
@@ -78,8 +88,17 @@ var routes = [
   {
     path: "/user-exercise",
     name: "Assigned Exercise",
-    icon: "ni ni-user-run text-blue",
+    icon: "ni ni-bullet-list-67 text-blue",
     component: <UserExercise />,
+    layout: "/user",
+    menuBar: true,
+    role:"user"
+  },
+  {
+    path: "/live-chart",
+    name: "Live Chart",
+    icon: "ni ni-chart-bar-32 text-orange",
+    component: <LiveChart />,
     layout: "/user",
     menuBar: true,
     role:"user"
@@ -87,7 +106,7 @@ var routes = [
   {
     path: "/profile",
     name: "User Profile",
-    icon: "ni ni-single-02 text-yellow",
+    icon: "ni ni-single-02 text-info",
     component: <Profile />,
     layout: "/user",
     menuBar: false,
