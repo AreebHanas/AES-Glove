@@ -23,9 +23,10 @@ import userService from "servicers/admin/userService";
 import ConformationModal from "variables/ConformationModal.js";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import User from "components/Headers/User.js";
 
 const PatientExercise = () => {
-  const { currentUser } = useSelector(state => state.user);
+  const { currentUser,user } = useSelector(state => state.user);
 //   const navigate = useNavigate();
   const [modal, setModal] = useState(false);
   const [items, setItems] = useState([]);
@@ -99,7 +100,9 @@ const PatientExercise = () => {
 
   return (
     <>
-      <Header />
+      {
+        user.userRole === "admin" ?<Header />: <User />
+      }
       {/* Page content */}
       <Container className="mt--7" fluid>
         {/* Dark table */}

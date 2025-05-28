@@ -6,6 +6,16 @@ import {
 import Header from "components/Headers/Header.js";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
+import {
+  classifyFlexValue01,
+  classifyFlexValue02,
+  classifyFlexValue03,
+  classifyFlexValue04,
+  classifyFlexValue05,
+  classifyFlexValue06,
+  classifyFlexValue07
+} from '../../utils/flexClassifier';
+import User from "components/Headers/User.js";
 
 const LiveChart = ()=>{
 
@@ -13,102 +23,20 @@ const LiveChart = ()=>{
 
   const [socket, setSocket] = useState(null);
   const [dataLog, setDataLog] = useState([]);
-  const { currentUser } = useSelector(state => state.user);
+  const { currentUser,user } = useSelector(state => state.user);
   const [data, setData] = useState([]);
   // adjust this values as per your need
   console.log(dataLog)
-  // 1st flex
-  const classifyFlex01 ={
-    low: 25,
-    medium: 50,
-    high: 75,
-  }
-  // 2nd flex
-  const classifyFlex02 ={
-    low: 20,
-    medium: 50,
-    high: 70,
-  }
-  // 3rd flex
-  const classifyFlex03 ={
-    low: 35,
-    medium: 70,
-    high: 85,
-  }
-  // 4th flex
-  const classifyFlex04 ={
-    low: 40,
-    medium: 70,
-    high: 90,
-  }
-  // 5th flex
-  const classifyFlex05 ={
-    low: 30,
-    medium: 60,
-    high: 85,
-  }
-  // 6th flex
-  const classifyFlex06 ={
-    low: 35,
-    medium: 65,
-    high: 90,
-  }
-  // 7th flex
-  const classifyFlex07 ={
-    low: 40,
-    medium: 70,
-    high: 95,
-  }
-
-  // 1st flex
-  const classifyFlexValue01 = (value) => {
-    if (value < classifyFlex01.low) return "No Bend";
-    if (value < classifyFlex01.medium) return "Almost No Bend";
-    if (value < classifyFlex01.high) return "Almost Full Bend";
-    return "Full Bend";
-  };
-  // 2nd flex
-  const classifyFlexValue02 = (value) => {
-    if (value < classifyFlex02.low) return "No Bend";
-    if (value < classifyFlex02.medium) return  "Almost No Bend";
-    if (value < classifyFlex02.high) return "Almost Full Bend";
-    return "Full Bend";
-  };
-  // 3rd flex
-  const classifyFlexValue03 = (value) => {
-    if (value < classifyFlex03.low) return "No Bend";
-    if (value < classifyFlex03.medium) return  "Almost No Bend";
-    if (value < classifyFlex03.high) return "Almost Full Bend";
-    return "Full Bend";
-  };
-  // 4th flex
-  const classifyFlexValue04 = (value) => {
-    if (value < classifyFlex04.low) return "No Bend";
-    if (value < classifyFlex04.medium) return  "Almost No Bend";
-    if (value < classifyFlex04.high) return "Almost Full Bend";
-    return "Full Bend";
-  };
-  // 5th flex
-  const classifyFlexValue05 = (value) => {
-    if (value < classifyFlex05.low) return "No Bend";
-    if (value < classifyFlex05.medium) return  "Almost No Bend";
-    if (value < classifyFlex05.high) return "Almost Full Bend";
-    return "Full Bend";
-  };
-  // 6th flex
-  const classifyFlexValue06 = (value) => {
-    if (value < classifyFlex06.low) return "No Bend";
-    if (value < classifyFlex06.medium) return  "Almost No Bend";
-    if (value < classifyFlex06.high) return "Almost Full Bend";
-    return "Full Bend";
-  };
-  // 7th flex
-  const classifyFlexValue07 = (value) => {
-    if (value < classifyFlex07.low) return "No Bend";
-    if (value < classifyFlex07.medium) return  "Almost No Bend";
-    if (value < classifyFlex07.high) return "Almost Full Bend";
-    return "Full Bend";
-  };
+  // Flex classification logic (reuse from flexClassifier.js)
+  const classifyFlex = [
+    classifyFlexValue01,
+    classifyFlexValue02,
+    classifyFlexValue03,
+    classifyFlexValue04,
+    classifyFlexValue05,
+    classifyFlexValue06,
+    classifyFlexValue07,
+  ];
 
   const categoryMapping = {
     "No Bend": 1,
@@ -393,7 +321,7 @@ const LiveChart = ()=>{
           {
             x: prev[idx]?.data?.length ? prev[idx].data[prev[idx].data.length - 1].x + 1 : 1,
             y: categoryMapping[
-              flexClassifiers[idx](flex[key])
+              classifyFlex[idx](flex[key])
             ],
           },
         ].slice(-XAXISRANGE),
@@ -405,9 +333,11 @@ const LiveChart = ()=>{
 
     return (
       <>
-        <Header />
-        <Container className="mt-3" fluid>
-          <div id="chart" className="mt-5">
+      {
+        user.userRole === "admin" ?<Header />: <User />
+      }
+        <Container className="mt-7" fluid>
+          <div id="chart" className="">
             <ReactApexChart options={state.options} series={state.series} type="line" height={350} />
           </div>
           <div id="flex-chart">

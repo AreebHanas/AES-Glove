@@ -1,4 +1,5 @@
 import { WebSocketServer } from 'ws';
+import SensorData from '../models/sensorModel.js';
 
 const activeRooms = new Map(); // roomId => Set of sockets
 
@@ -44,8 +45,37 @@ const socketHandler = (server) => {
                   client.send(JSON.stringify({ event: 'test-data', data }));
                 }
               }
-              console.log(`Broadcasted to ${roomId}:`, data);
-            }
+            
+            // Save to DB
+              const flexData = data.Flex || {};
+              const sensorsArray = data.sensors || [];
+
+              const sensorObj = {
+                HR: sensorsArray.find(s => s.HR !== undefined)?.HR || null,
+                SPO2: sensorsArray.find(s => s.SPO2 !== undefined)?.SPO2 || null,
+                EMG: parseFloat(sensorsArray.find(s => s.EMG !== undefined)?.EMG || 0),
+                Pressure: parseFloat(sensorsArray.find(s => s.Pressure !== undefined)?.Pressure || 0),
+              };
+
+              const newSensorRecord = new SensorData({
+                userId: roomId, // assuming roomId is userId
+                flex: flexData,
+                sensors: sensorObj,
+                status: data.Status || 'Active',
+                battery: data.Battery || 'Unknown',
+              });
+
+              newSensorRecord.save()
+              .then(() => {
+                console.log(`Saved sensor data for user: ${roomId}`);
+              })
+              .catch((err) => {
+                console.error("Failed to save sensor data:", err);
+              });
+
+            console.log(`Broadcasted to ${roomId}:`, data);
+          }
+
             break;
 
           default:

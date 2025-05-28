@@ -8,9 +8,9 @@ import AdminFooter from "components/Footers/AdminFooter.js";
 import Sidebar from "components/Sidebar/Sidebar.js";
 
 import routes from "routes.js";
-import Header from "components/Headers/Header";
+import User from "components/Headers/User.js";
 
-const User = (props) => {
+const HeaderForUser = (props) => {
   const mainContent = React.useRef(null);
   const location = useLocation();
   const [isHeader, setIsHeader] = useState(false);
@@ -26,7 +26,7 @@ const User = (props) => {
     return routes.map((prop, key) => {
       if (prop.layout === "/user") {
         return (
-          <Route path={prop.path} element={prop.component} key={key} exact />
+            <Route path={prop.path} element={prop.component} key={key} exact />
         );
       } 
     });
@@ -56,21 +56,21 @@ const User = (props) => {
         }}
       />
       <div className="main-content" ref={mainContent}>
+        {/* <User /> */}
         <AdminNavbar
           {...props}
           brandText={getBrandText(props?.location?.pathname)}
         />
-          <Header />
-        <Routes>
-          {getRoutes(routes)}
-          <Route path="*" element={<Navigate to="/auth/login" replace />} />
-        </Routes>
-        <Container fluid>
-          <AdminFooter />
-        </Container>
+          <Routes>
+            {getRoutes(routes)}
+            <Route path="*" element={<Navigate to="/auth/login" replace />} />
+          </Routes>
+          <Container fluid>
+            <AdminFooter />
+          </Container>
       </div>
     </>
   );
 };
 
-export default User;
+export default HeaderForUser;

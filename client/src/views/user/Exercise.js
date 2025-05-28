@@ -13,6 +13,7 @@ import Header from "components/Headers/Header.js";
 import userService from "servicers/admin/userService";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import User from "components/Headers/User.js";
 
 const UserExercise = () => {
   const { currentUser } = useSelector(state => state.user);
@@ -35,9 +36,9 @@ const UserExercise = () => {
 
   return (
     <>
-      {/* <Header /> */}
+      <User />
       {/* Page content */}
-      <Container className="mt--7" fluid>
+      <Container className="mt-7" fluid>
         {/* Dark table */}
         <Row className="mt-5">
           <div className="col">

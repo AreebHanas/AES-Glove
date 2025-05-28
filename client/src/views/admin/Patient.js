@@ -254,6 +254,20 @@ const Patient = () => {
                                 href="#pablo"
                                 onClick={(e) => {
                                   e.preventDefault();
+                                  dispatch(setCurrentUser({
+                                    name: item.name,
+                                    email: item.email,
+                                    id: item._id,
+                                  }))
+                                  navigate("/admin/history");
+                                }}
+                              >
+                                History
+                              </DropdownItem>
+                              <DropdownItem
+                                href="#pablo"
+                                onClick={(e) => {
+                                  e.preventDefault();
                                   confermDelete(
                                     "Delete Patient",
                                     async () => await deleteAction(item._id),
