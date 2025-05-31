@@ -23,7 +23,7 @@ const sensorDataSchema = new mongoose.Schema({
     HR: Number,         // Heart Rate
     SPO2: Number,       // Blood oxygen
     EMG: Number,
-    Pressure: Number,
+    FSR: Number,
   },
   status: {
     type: String,

@@ -54,7 +54,7 @@ const socketHandler = (server) => {
                 HR: sensorsArray.find(s => s.HR !== undefined)?.HR || null,
                 SPO2: sensorsArray.find(s => s.SPO2 !== undefined)?.SPO2 || null,
                 EMG: parseFloat(sensorsArray.find(s => s.EMG !== undefined)?.EMG || 0),
-                Pressure: parseFloat(sensorsArray.find(s => s.Pressure !== undefined)?.Pressure || 0),
+                Pressure: parseFloat(sensorsArray.find(s => s.FSR !== undefined)?.FSR || 0),
               };
 
               const newSensorRecord = new SensorData({
