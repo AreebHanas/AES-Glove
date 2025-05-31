@@ -30,7 +30,7 @@ import {
 const FLEX_FIELDS = [
   'EF_Flex', 'IF_Flex', 'MF_Flex', 'PF_Flex', 'RF_Flex', 'TF_Flex', 'WF_Flex'
 ];
-const SENSOR_FIELDS = ['HR', 'SPO2', 'EMG', 'FSR'];
+const SENSOR_FIELDS = ['HR', 'SPO2', 'EMG', 'Pressure'];
 const ALL_FIELDS = [...FLEX_FIELDS, ...SENSOR_FIELDS];
 
 const FIELD_LABELS = {
@@ -44,7 +44,7 @@ const FIELD_LABELS = {
   HR: 'Heart Rate',
   SPO2: 'SPO2',
   EMG: 'EMG',
-  FSR: 'FSR',
+  Pressure: 'Pressure',
 };
 
 // Flex classification logic (reuse from flexClassifier.js)
@@ -199,7 +199,7 @@ const History = () => {
       HR: '#2dce89',
       SPO2: '#ff1493',
       EMG: '#ffa500',
-      FSR: '#008080',
+      Pressure: '#008080',
     };
     return colorMap[field] || '#fff';
   };
@@ -401,7 +401,7 @@ const History = () => {
                     <p className="text-white">Loading chart...</p>
                   )}
                 </div>
-                {/* Main chart: Only show HR if selected and only HR, never EMG or FSR */}
+                {/* Main chart: Only show HR if selected and only HR, never EMG or Pressure */}
                 {chartData.labels && selectedFields.length > 0 && selectedFields.includes('HR') && (
                   <div className="chart d-flex justify-content-center align-items-center mt-4" style={{ minHeight: '250px' }}>
                     <Line
@@ -526,20 +526,20 @@ const History = () => {
                   </div>
                 )}
 
-                {/* FSR chart */}
-                {chartData.labels && selectedFields.length > 0 && selectedFields.includes('FSR') && (
+                {/* Pressure chart */}
+                {chartData.labels && selectedFields.length > 0 && selectedFields.includes('Pressure') && (
                   <div className="chart d-flex justify-content-center align-items-center mt-4" style={{ minHeight: '250px' }}>
                     <Line
                       data={{
                         labels: chartData.labels,
-                        datasets: [chartData.datasets.find(ds => ds.label === FIELD_LABELS.FSR)].filter(Boolean)
+                        datasets: [chartData.datasets.find(ds => ds.label === FIELD_LABELS.Pressure)].filter(Boolean)
                       }}
                       options={{
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
                           legend: { display: true, position: 'top', labels: { color: '#fff', font: { size: 16 } } },
-                          title: { display: true, text: 'FSR', color: '#fff', font: { size: 18 } },
+                          title: { display: true, text: 'Pressure', color: '#fff', font: { size: 18 } },
                           tooltip: {
                             enabled: true,
                             backgroundColor: '#222',
