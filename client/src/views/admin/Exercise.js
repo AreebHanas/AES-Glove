@@ -126,19 +126,19 @@ const Exercise = () => {
               </CardHeader>
               <Table className="align-items-center table-dark table-flush" responsive>
                 <thead>
-                  <tr className="align-items-center">
+                  <tr className="align-items-center" >
                     <th scope="col">Exercise Name</th>
                     <th scope="col">URL</th>
-                    <th></th>
+                    <th className="text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {items.length === 0 ? (
+                  {items.length === 0? (
                     <tr>
                       <td colSpan="3" className="text-center text-white">No exercise created</td>
                     </tr>
                   ) : (
-                    items.map((item) => (
+                    items.filter((active)=>active.status === true).map((item) => (
                       <tr key={item._id}>
                         <th scope="row">
                           <span className="mb-0 text-sm">{item.name}</span>
@@ -148,7 +148,7 @@ const Exercise = () => {
                             {item.url}
                           </a>
                         </td>
-                        <td className="text-right">
+                        <td className="text-center">
                           <UncontrolledDropdown>
                             <DropdownToggle className="btn-icon-only text-light" href="#pablo" role="button" size="sm" color="" onClick={(e) => e.preventDefault()}>
                               <i className="fas fa-ellipsis-v" />

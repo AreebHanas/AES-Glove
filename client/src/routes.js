@@ -100,7 +100,7 @@ var routes = [
     icon: "ni ni-chart-bar-32 text-orange",
     component: <LiveChart />,
     layout: "/user",
-    menuBar: true,
+    menuBar: false,
     role:"user"
   },
   {

@@ -24,7 +24,7 @@ class HistoryService {
     return { start, end: new Date() };
   };
 
-  getAggregatedSensorData = async (userId, period, fields = [], startDate, endDate) => {
+  getAggregatedSensorData = async (userId, period, fields = [], startDate, endDate, exerciseId) => {
     // Use provided startDate/endDate or fallback to default
     let start, end;
     if (startDate && endDate) {
@@ -64,6 +64,14 @@ class HistoryService {
       sensorFields.forEach((sensor) => (project[`sensors.${sensor}`] = 1));
     }
 
+    const matchQuery = {
+      userId: userObjectId,
+      createdAt: { $gte: start, $lte: end },
+    };
+    if (exerciseId) {
+      matchQuery.exerciseId = new mongoose.Types.ObjectId(exerciseId);
+    }
+
     if (period === "day") {
       // Return average per day for the selected date range
       // Group by day and average each field
@@ -84,10 +92,7 @@ class HistoryService {
       });
       return await SensorData.aggregate([
         {
-          $match: {
-            userId: userObjectId,
-            createdAt: { $gte: start, $lte: end },
-          },
+          $match: matchQuery,
         },
         { $group: group },
         { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
@@ -113,10 +118,7 @@ class HistoryService {
       });
       return await SensorData.aggregate([
         {
-          $match: {
-            userId: userObjectId,
-            createdAt: { $gte: start, $lte: end },
-          },
+          $match: matchQuery,
         },
         { $group: group },
         { $sort: { "_id.year": 1, "_id.week": 1 } },
@@ -141,10 +143,7 @@ class HistoryService {
       });
       return await SensorData.aggregate([
         {
-          $match: {
-            userId: userObjectId,
-            createdAt: { $gte: start, $lte: end },
-          },
+          $match: matchQuery,
         },
         { $group: group },
         { $sort: { "_id.year": 1, "_id.month": 1 } },

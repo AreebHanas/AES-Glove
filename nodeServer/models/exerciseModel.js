@@ -5,6 +5,7 @@ const exerciseSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        uniruque: true,
     },
     url: {
         type: String,

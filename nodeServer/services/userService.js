@@ -9,7 +9,16 @@ class UserService {
             const { email, password } = userDetails;
             const hashedPassword = await bcrypt.hash(password, 10);
             const user = await userModel.create({ email, password: hashedPassword });
-            return { message: 'created', id: user._id, role: 'user', error: false };
+            const restExercise = await exerciseModel.find({status: false});
+            if (user && user.userRole === 'user') {
+                if (restExercise && restExercise.length === 1) {
+                    user.exercise.push({exerciseDetails: restExercise[0]._id, round: 1, status: false});
+                    await user.save();
+                } else {
+                    return { error: true, message: 'Default exercise not found' };
+                }
+            }
+            return { message: 'created', id: user._id, role: user.userRole, error: false };
         } catch (error) {
             error.message = error.message.includes('duplicate key error') ? 'User already exists' : error.message;
             return { error: true, message: error.message }  ;
@@ -48,7 +57,7 @@ class UserService {
     getUsers = async () => {
         try {
             // Include status field so frontend can toggle correctly
-            const users = await userModel.find({userRole:'user'}, { email: 1, status: 1 });
+            const users = await userModel.find({userRole:'user'}, { email: 1, status: 1, _id: 1, userRole: 1 });
             return { users };
         } catch (error) {
             return { error: true, message: error.message };
@@ -74,9 +83,9 @@ class UserService {
         try {
             let exercises = [];
             if (!exerciseName || exerciseName === undefined) {
-                exercises = await exerciseModel.find();
+                exercises = await exerciseModel.find({status: true})
             } else {
-            exercises = await exerciseModel.find({ name: { $regex: exerciseName, $options: 'i' } });
+            exercises = await exerciseModel.find({ name: { $regex: exerciseName, $options: 'i' }, status: true });
             }
             if (exercises.length === 0) {
                 return { error: true, message: 'No exercises found' };

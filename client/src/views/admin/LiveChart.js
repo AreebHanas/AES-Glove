@@ -5,7 +5,6 @@ import {
 } from "reactstrap";
 import Header from "components/Headers/Header.js";
 import { useSelector } from "react-redux";
-import { io } from "socket.io-client";
 import {
   classifyFlexValue01,
   classifyFlexValue02,
@@ -26,7 +25,6 @@ const LiveChart = ()=>{
   const { currentUser,user } = useSelector(state => state.user);
   const [data, setData] = useState([]);
   // adjust this values as per your need
-  console.log(dataLog)
   // Flex classification logic (reuse from flexClassifier.js)
   const classifyFlex = [
     classifyFlexValue01,
@@ -236,7 +234,7 @@ const LiveChart = ()=>{
   wsRef.current = ws;
 
   // Set your roomId here (can be dynamic or hardcoded)
-  const roomId = currentUser.id; // Change as needed
+  const roomId = user.userRole == "admin" ? currentUser.id : user.id ; // Change as needed
 
   let currentTime = 0;
   const timer = setInterval(() => {
@@ -253,7 +251,6 @@ const LiveChart = ()=>{
     const message = JSON.parse(event.data);
     if (message.event !== 'test-data') return;
     const { data } = message;
-    // Flex sensors
     if (data.Flex) {
       setDataLog(prev => ([...prev, { ...data }]));
     }

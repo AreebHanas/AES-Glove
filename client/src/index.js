@@ -9,16 +9,19 @@ import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
 import {Toaster} from "react-hot-toast";
 import App from "App.js";
+import {WebSocketProvider } from "./customHooks/webShocketHook.js";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor}>
-      <BrowserRouter>
-        <Toaster/>
-        <App />
-      </BrowserRouter>
-    </PersistGate>
+      <WebSocketProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <BrowserRouter>
+          <Toaster/>
+          <App />
+        </BrowserRouter>
+      </PersistGate>
+    </WebSocketProvider>
   </Provider>
 );

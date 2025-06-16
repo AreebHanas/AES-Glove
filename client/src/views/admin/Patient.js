@@ -107,7 +107,6 @@ const Patient = () => {
     }
   };
 
-
   return (
     <>
       <Header refresh={headerRefresh} />
@@ -231,6 +230,7 @@ const Patient = () => {
                                     name: item.name,
                                     email: item.email,
                                     id: item._id,
+                                    userRole: item.userRole,
                                   }))
                                   navigate("/admin/live-chart");
                                 }}
@@ -245,6 +245,7 @@ const Patient = () => {
                                     name: item.name,
                                     email: item.email,
                                     id: item._id,
+                                    userRole: item.userRole,
                                   }))
                                   navigate("/admin/patient-exercise");
                                 }}>
@@ -258,6 +259,7 @@ const Patient = () => {
                                     name: item.name,
                                     email: item.email,
                                     id: item._id,
+                                    userRole: item.userRole,
                                   }))
                                   navigate("/admin/history");
                                 }}
@@ -284,7 +286,7 @@ const Patient = () => {
                                   handleEdit({
                                     _id: item._id,
                                     email: item.email,
-                                    // add other fields if needed
+                                    userRole: item.userRole,
                                   });
                                 }}
                               >

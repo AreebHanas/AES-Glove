@@ -13,7 +13,8 @@ const initialState = {
     currentUser: {
         name: null,
         email: null,
-        id: null
+        id: null,
+        userRole: null,
     }
 };
 
@@ -32,6 +33,7 @@ const user = createSlice({
         setCurrentUser: (state, action) => {
             state.currentUser.email = action.payload.email;
             state.currentUser.id = action.payload.id;
+            state.currentUser.userRole = action.payload.userRole;
         }
     }
 });
