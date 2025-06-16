@@ -13,6 +13,7 @@ import {
 import classnames from 'classnames';
 import { Line } from 'react-chartjs-2';
 import historyService from 'servicers/admin/historyService.js';
+import exerciseService from 'servicers/admin/exerciseService.js';
 import { useSelector } from 'react-redux';
 import Header from 'components/Headers/Header';
 import DatePicker from 'react-datepicker';
@@ -82,6 +83,8 @@ const History = () => {
   const [endDate, setEndDate] = useState(new Date());
   const [currentPeriod, setCurrentPeriod] = useState('month'); // Track current period
   const [flexChartData, setFlexChartData] = useState({ labels: [], datasets: [] });
+  const [exerciseList, setExerciseList] = useState([]);
+  const [selectedExerciseId, setSelectedExerciseId] = useState('');
 
   const handleFieldToggle = (field) => {
     setSelectedFields((prev) =>
@@ -93,7 +96,9 @@ const History = () => {
 
   const fetchHistory = async (period, fields = selectedFields, sDate = startDate, eDate = endDate) => {
     try {
-      const data = await historyService.fetchHistory(userId, period, fields, sDate, eDate);
+      // Pass selectedExerciseId to backend, or undefined for all
+      const exerciseId = selectedExerciseId || undefined;
+      const data = await historyService.fetchHistory(userId, period, fields, sDate, eDate, exerciseId);
       const labels = [];
       const datasets = [];
 
@@ -229,7 +234,7 @@ const History = () => {
   useEffect(() => {
     fetchHistory(currentPeriod, selectedFields, startDate, endDate);
     // eslint-disable-next-line
-  }, [selectedFields, currentPeriod, startDate, endDate]);
+  }, [selectedFields, currentPeriod, startDate, endDate, selectedExerciseId]);
 
   useEffect(() => {
     // Only update flex chart if flex fields are selected
@@ -269,6 +274,17 @@ const History = () => {
     setFlexChartData({ labels: flexLabels, datasets: flexDatasets });
   }, [chartData, selectedFields]);
 
+  useEffect(() => {
+    // Fetch all exercises for dropdown
+    async function fetchExercises() {
+      const res = await exerciseService.fetchExercise();
+      if (!res.error && res.data && Array.isArray(res.data.exercises)) {
+        setExerciseList(res.data.exercises);
+      }
+    }
+    fetchExercises();
+  }, []);
+
   return (
     <>
     <Header />
@@ -306,7 +322,10 @@ const History = () => {
                         </button>
                       ))}
                     </div>
-                    <div className="d-flex align-items-center mb-2">
+                    <div className="d-flex align-items-center mb-2"style={{width: '100%', gap: '16px'}}>
+                      <div>
+
+                      </div>
                       <span className="text-white mr-2" style={{fontWeight:600}}>Date Range:</span>
                       <DatePicker
                         selected={startDate}
@@ -317,7 +336,35 @@ const History = () => {
                         maxDate={new Date()}
                         dateFormat="yyyy-MM-dd"
                         className="form-control"
+                        style={{ minWidth: 120, maxWidth: 140, marginRight: 32 }} // Increased gap here
                       />
+                      {/* Exercise filter right of date range */}
+                      <span className="text-white mr-2" style={{fontWeight:600}}>Exercise:</span>
+                      <select
+                        className="form-control"
+                        style={{ minWidth: 100, maxWidth: 140, display: 'inline-block' }}
+                        value={selectedExerciseId}
+                        onChange={e => setSelectedExerciseId(e.target.value)}
+                      >
+                        <option value="">All Exercises</option>
+                        {exerciseList.map(ex => (
+                          <option key={ex._id} value={ex._id}>{ex.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="d-flex align-items-center mb-2" style={{marginLeft: 'auto'}}>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        style={{ minWidth: 100, fontWeight: 600 }}
+                        onClick={() => {
+                          setSelectedFields(['HR']);
+                          setStartDate(new Date(new Date().setDate(new Date().getDate() - 7)));
+                          setEndDate(new Date());
+                          setSelectedExerciseId('');
+                        }}
+                      >
+                        Clear Filters
+                      </button>
                     </div>
                     <Nav className="justify-content-end" pills>
                       <NavItem>

@@ -8,6 +8,7 @@ const validation = async(req,res,next)=>{
     }
     const decoded = jwt.verify(token.replace('Bearer ',''),JWT_SECRET)
     if (decoded.exp < Date.now() / 1000) {
+        console.log('Token has expired');
         return res.status(401).json({ message: 'Token has expired.' });
     }
     try {

@@ -6,6 +6,11 @@ const sensorDataSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  exerciseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Exercise',
+    required: true,
+  },
   timestamp: {
     type: Date,
     default: Date.now, // helps with filtering by week/month

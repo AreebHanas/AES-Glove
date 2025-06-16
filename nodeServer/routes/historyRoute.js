@@ -9,10 +9,10 @@ const router = express.Router();
 // @query   period=day|week|month
 // @access  Private (assuming you're using authentication)
 router.post('/', async (req, res) => {
-  const { userId, period = 'day', fields = [], startDate, endDate } = req.body; // accept startDate, endDate
+  const { userId, period = 'day', fields = [], startDate, endDate, exerciseId } = req.body; // accept startDate, endDate, exerciseId
 
   try {
-    const data = await HistoryService.getAggregatedSensorData(userId, period, fields, startDate, endDate);
+    const data = await HistoryService.getAggregatedSensorData(userId, period, fields, startDate, endDate, exerciseId);
     res.status(200).json(data);
   } catch (error) {
     console.error('History route error:', error);

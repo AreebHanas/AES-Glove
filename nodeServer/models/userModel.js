@@ -34,12 +34,21 @@ const userSchema = new mongoose.Schema({
         round: {
             type: Number,
             required: true
+        },
+        status: {
+            type: Boolean,
+            requirered:true,
+            default: true
         }
     }],
     avatar: {
         type: String,
         default: ''
-    }
+    },
+    online: {
+        type: Boolean,
+        default: false
+    },
 },
 {timestamps: true}
 );

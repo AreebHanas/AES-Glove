@@ -16,7 +16,8 @@ const socketHandler = (server) => {
     ws.on('message', (message) => {
       try {
         const parsed = JSON.parse(message);
-        const { event, roomId, data } = parsed;
+        const { event, roomId, data, exerciseId, storeData } = parsed;
+        
 
         switch (event) {
           case 'join-room':
@@ -45,24 +46,34 @@ const socketHandler = (server) => {
                   client.send(JSON.stringify({ event: 'test-data', data }));
                 }
               }
-            
+
+            console.log(`Broadcasted to ${roomId}`);
+          }
+            break;
+
+          case 'save-sensor-data':
+            if (!roomId || !storeData || exerciseId === null) {
+              console.error("Invalid save-sensor-data message format");
+              return;
+            }
             // Save to DB
-              const flexData = data.Flex || {};
-              const sensorsArray = data.sensors || [];
+              const flexData = storeData.Flex || {};
+              const sensorsArray = storeData.sensors || [];
 
               const sensorObj = {
                 HR: sensorsArray.find(s => s.HR !== undefined)?.HR || null,
                 SPO2: sensorsArray.find(s => s.SPO2 !== undefined)?.SPO2 || null,
                 EMG: parseFloat(sensorsArray.find(s => s.EMG !== undefined)?.EMG || 0),
-                Pressure: parseFloat(sensorsArray.find(s => s.FSR !== undefined)?.FSR || 0),
+                FSR: parseFloat(sensorsArray.find(s => s.FSR !== undefined)?.Pressure || 0),
               };
 
               const newSensorRecord = new SensorData({
                 userId: roomId, // assuming roomId is userId
+                exerciseId: exerciseId,
                 flex: flexData,
                 sensors: sensorObj,
-                status: data.Status || 'Active',
-                battery: data.Battery || 'Unknown',
+                status: storeData.Status || 'Active',
+                battery: storeData.Battery || 'Unknown',
               });
 
               newSensorRecord.save()
@@ -72,11 +83,7 @@ const socketHandler = (server) => {
               .catch((err) => {
                 console.error("Failed to save sensor data:", err);
               });
-
-            console.log(`Broadcasted to ${roomId}:`, data);
-          }
-
-            break;
+              break;
 
           default:
             console.warn("Unknown event type:", event);

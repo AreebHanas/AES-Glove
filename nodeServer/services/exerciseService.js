@@ -41,6 +41,11 @@ class exercise {
     getExercises = async () => {
         try {
             const exercises = await exerciseModel.find();
+            const deactiveExercises = exercises.filter(exercise => exercise.status === false);
+            console.log('deactive exercises', deactiveExercises);
+            if (exercises.length === 0 || deactiveExercises.length === 0) {
+                await exerciseModel.create({ name: 'rest', url: 'Keep you hand at the rest position for few minituse', status: false});
+            }
             return { exercises };
         } catch (error) {
             return { error: true, message: error.message };
@@ -51,7 +56,7 @@ class exercise {
         try {
             const { exercise_id } = id;
             const exercise = await exerciseModel.findById(exercise_id);
-            if (!exercise) {
+            if (!exercise || exercise.status === false) {
                 return { error: true, message: 'exercise not found' };
             }
             return { exercise };
@@ -64,7 +69,7 @@ class exercise {
     // Dashboard services
     getExerciseCount = async () => {
         try {
-            const count = await exerciseModel.countDocuments();
+            const count = await exerciseModel.countDocuments({status:true});
             return {error:false, count };
         } catch (error) {
             return { error: true, message: error.message };
@@ -74,7 +79,7 @@ class exercise {
     searchExerciseByName = async (name) => {
         try {
             // Partial, case-insensitive search by name
-            const exercises = await exerciseModel.find({ name: { $regex: name, $options: 'i' } });
+            const exercises = await exerciseModel.find({ name: { $regex: name, $options: 'i' }, status: true });
             return exercises;
         } catch (error) {
             throw new Error(error.message);

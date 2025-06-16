@@ -38,6 +38,8 @@ const PatientExercise = () => {
     conformationMsg: "",
   });
 
+  console.log(currentUser)
+
   const confermDelete = (title, action, conformationMsg) => {
     setModalData({
       title,
@@ -60,8 +62,9 @@ const PatientExercise = () => {
 
   const fetchPatientExercise = async () => {
     const result = await userService.getPatientExercise(currentUser.id);
+    console.log()
     // Add isEditing and editRound fields for UI editing
-    const exercises = (result.data || []).map(item => ({
+    const exercises = (result.data || []).filter(active=>active.status === true).map(item => ({
       ...item,
       isEditing: false,
       editRound: item.round
@@ -95,7 +98,7 @@ const PatientExercise = () => {
   };
 
   const cancelRoundEdit = idx => {
-    setItems(items => items.map((item, i) => i === idx ? { ...item, isEditing: false, editRound: item.round } : item));
+    setItems(items => items.filter(active=>active.status === true).map((item, i) => i === idx ? { ...item, isEditing: false, editRound: item.round } : item));
   };
 
   return (
@@ -110,14 +113,14 @@ const PatientExercise = () => {
           <div className="col">
             <Card className="bg-default shadow">
               <CardHeader className="d-flex bg-transparent border-0 justify-content-between">
-                <h3 className="text-white mb-0">{currentUser.name} Exercise Table</h3>
+                <h3 className="text-white mb-0">{currentUser.email} Exercise Table</h3>
                 <Button
                   onClick={(e) => {
                     e.preventDefault();
                     return toggle();
                   }}
                 >
-                  Assigned Exercise
+                  Assign Exercise
                 </Button>
               </CardHeader>
               <Table
@@ -130,7 +133,7 @@ const PatientExercise = () => {
                     <th scope="col">Exercise Demo</th>
                     <th scope="col">Rounds</th>
                     {/* <th scope="col">Status</th> */}
-                    <th scope="col">Actions</th>
+                    <th scope="col" className="text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -142,7 +145,7 @@ const PatientExercise = () => {
                     items.map((item, idx) => (
                       <tr key={item.exerciseDetails._id}>
                         <td>{item.exerciseDetails.name}</td>
-                        <td>{item.exerciseDetails.url}</td>
+                        <td><a href={item.exerciseDetails.url}>{item.exerciseDetails.url}</a></td>
                         <td>
                           {item.isEditing ? (
                             <>
@@ -165,7 +168,7 @@ const PatientExercise = () => {
                             </>
                           )}
                         </td>
-                        <td className="text-right">
+                        <td className="text-center">
                           <UncontrolledDropdown>
                             <DropdownToggle
                               className="btn-icon-only text-light"
@@ -189,7 +192,7 @@ const PatientExercise = () => {
                                   );
                                 }}
                               >
-                                Delete
+                                Remove
                               </DropdownItem>
                             </DropdownMenu>
                           </UncontrolledDropdown>
