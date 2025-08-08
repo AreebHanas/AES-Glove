@@ -3,7 +3,8 @@ name: CI/CD to Azure VM
 on:
   push:
     branches:
-      - main
+      - dev
+      
 
 jobs:
   cd:
