@@ -129,13 +129,14 @@ const Exercise = () => {
                   <tr className="align-items-center" >
                     <th scope="col">Exercise Name</th>
                     <th scope="col">URL</th>
+                    <th scope="col">Sensor</th>
                     <th className="text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {items.length === 0? (
                     <tr>
-                      <td colSpan="3" className="text-center text-white">No exercise created</td>
+                      <td colSpan="4" className="text-center text-white">No exercise created</td>
                     </tr>
                   ) : (
                     items.filter((active)=>active.status === true).map((item) => (
@@ -147,6 +148,9 @@ const Exercise = () => {
                           <a className="mb-0 text-sm" href={item.url} target="_blank" rel="noopener noreferrer">
                             {item.url}
                           </a>
+                        </td>
+                        <td>
+                          <span className="mb-0 text-sm">{item.sensor || '-'}</span>
                         </td>
                         <td className="text-center">
                           <UncontrolledDropdown>

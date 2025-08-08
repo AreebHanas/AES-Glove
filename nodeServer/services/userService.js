@@ -6,9 +6,9 @@ class UserService {
     // User account management services
     creatUser = async (userDetails) => {
         try {
-            const { email, password } = userDetails;
+            const { email, password, name, macAddress } = userDetails;
             const hashedPassword = await bcrypt.hash(password, 10);
-            const user = await userModel.create({ email, password: hashedPassword });
+            const user = await userModel.create({ email, password: hashedPassword, name, macAddress });
             const restExercise = await exerciseModel.find({status: false});
             if (user && user.userRole === 'user') {
                 if (restExercise && restExercise.length === 1) {
@@ -56,8 +56,8 @@ class UserService {
       
     getUsers = async () => {
         try {
-            // Include status field so frontend can toggle correctly
-            const users = await userModel.find({userRole:'user'}, { email: 1, status: 1, _id: 1, userRole: 1 });
+            // Include status, name, and macAddress fields so frontend can toggle and display correctly
+            const users = await userModel.find({userRole:'user'}, { email: 1, status: 1, _id: 1, userRole: 1, name: 1, macAddress: 1, avatar: 1 });
             return { users };
         } catch (error) {
             return { error: true, message: error.message };
@@ -67,7 +67,7 @@ class UserService {
     getUserById = async (id) => {
         try {
             const { user_id } = id;
-            const user = await userModel.findById(user_id, { email: 1 });
+            const user = await userModel.findById(user_id, { email: 1, name: 1, macAddress: 1 });
             if (!user) {
                 return { error: true, message: 'User not found' };
             }
@@ -98,7 +98,7 @@ class UserService {
 
     getPatientExercise = async (user_id) => {
         try {
-            const user = await userModel.findById(user_id).populate('exercise.exerciseDetails', 'name url');
+            const user = await userModel.findById(user_id).populate('exercise.exerciseDetails', 'name url sensor');
             if (!user) {
                 return { error: true, message: 'User not found' };
             }

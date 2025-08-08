@@ -16,9 +16,14 @@ import toast from 'react-hot-toast';
 
 function AddModal(props) {
   const { className,modal,toggle,fetchExercise } = props;
+  const flexSensorKeys = [
+    "EF_Flex", "IF_Flex", "MF_Flex", "PF_Flex", "RF_Flex",
+    "TF_Flex", "WF_Flex"
+  ];
   const [formData,setFormData] = useState({
     name:'',
     url:'',
+    sensor: '',
     isnameValid:false,
     isurlValid:false,
     nameError:"",
@@ -77,6 +82,7 @@ const validateInputs = () => {
       const data = {
         name: formData.name,
         url: formData.url,
+        sensor: formData.sensor,
       };
       // navigate("/admin/index")
       const {error,message} = await exerciseService.addExercise(data)
@@ -121,8 +127,7 @@ const validateInputs = () => {
               placeholder='Enter a valid name'
               onChange={handleChange}
               value={formData.name}
-            >
-            </Input>
+            />
             {!formData.isnameValid && <small style={{ color: "red" }}>{formData.nameError}</small>}
           </FormGroup>
           <FormGroup>
@@ -134,9 +139,23 @@ const validateInputs = () => {
               placeholder='Enter a url'
               onChange={handleChange}
               value={formData.url}
-            >
-            </Input>
+            />
             {!formData.isurlValid && <small style={{ color: "red" }}>{formData.urlError}</small>}
+          </FormGroup>
+          <FormGroup>
+            <Label for="sensor">Select which sensor need to use for tracking rounds</Label>
+            <Input
+              type="select"
+              name="sensor"
+              id="sensor"
+              value={formData.sensor}
+              onChange={handleChange}
+            >
+              <option value="">-- None --</option>
+              {flexSensorKeys.map(key => (
+                <option key={key} value={key}>{key}</option>
+              ))}
+            </Input>
           </FormGroup>
       </Form>
         </ModalBody>

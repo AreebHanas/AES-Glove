@@ -8,13 +8,15 @@ const initialState = {
         id: null,
         avatar: null,
         userRole: null,
-        status: null
+        status: null,
+        macAddress: null // <-- Added macAddress
     },
     currentUser: {
         name: null,
         email: null,
         id: null,
         userRole: null,
+        macAddress: null // <-- Added macAddress
     }
 };
 
@@ -34,6 +36,8 @@ const user = createSlice({
             state.currentUser.email = action.payload.email;
             state.currentUser.id = action.payload.id;
             state.currentUser.userRole = action.payload.userRole;
+            state.currentUser.name = action.payload.name;
+            state.currentUser.macAddress = action.payload.macAddress;
         }
     }
 });

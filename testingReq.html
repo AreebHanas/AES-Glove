@@ -31,13 +31,14 @@
 
   <h1>Sensor Data Simulator</h1>
   <button id="start">Start Sending</button>
+  <button id="stop">Stop Sending</button>
   <p id="status">Status: Not connected</p>
   <pre id="log"></pre>
 
   <script>
     let socket;
     let interval;
-    const roomId = '684ec79645c67b7770d7e95c'; // Update as needed
+    const roomId = '68603f920b33b7507cdd73f2'; // Update as needed
     const statusEl = document.getElementById('status');
     const logEl = document.getElementById('log');
 
@@ -123,6 +124,18 @@
         console.error("WebSocket error:", err);
         statusEl.textContent = "Status: Error";
       });
+    });
+
+    document.getElementById('stop').addEventListener('click', () => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+        statusEl.textContent = "Status: Disconnected";
+        logEl.textContent += 'Stopped sending data and closed connection.\n';
+      }
     });
   </script>
 

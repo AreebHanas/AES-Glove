@@ -2,9 +2,12 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install --production
+COPY package.json package-lock.json ./
+RUN npm install -g pm2 && npm install
 
-RUN npm install -g pm2
+COPY . .
 
-CMD ["pm2-runtime", "pm2.config.js"]
+EXPOSE 8080
+
+CMD ["pm2-runtime", "index.js"]
+

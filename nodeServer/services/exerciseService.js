@@ -4,8 +4,8 @@ class exercise {
     // Exercise management services
     creatExercise = async (exerciseDetails) => {
         try {
-            const { name, url } = exerciseDetails;
-            const exercise = await exerciseModel.create({ name, url });
+            const { name, url, sensor } = exerciseDetails;
+            const exercise = await exerciseModel.create({ name, url, sensor });
             return { message: 'created', id: exercise._id};
         } catch (error) {
             error.message = error.message.includes('duplicate key error') ? 'exercise already exists' : error.message;

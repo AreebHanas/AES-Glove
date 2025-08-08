@@ -14,6 +14,7 @@ import classnames from 'classnames';
 import { Line } from 'react-chartjs-2';
 import historyService from 'servicers/admin/historyService.js';
 import exerciseService from 'servicers/admin/exerciseService.js';
+import userService from 'servicers/admin/userService.js';
 import { useSelector } from 'react-redux';
 import Header from 'components/Headers/Header';
 import DatePicker from 'react-datepicker';
@@ -85,6 +86,8 @@ const History = () => {
   const [flexChartData, setFlexChartData] = useState({ labels: [], datasets: [] });
   const [exerciseList, setExerciseList] = useState([]);
   const [selectedExerciseId, setSelectedExerciseId] = useState('');
+  const [exerciseSummary, setExerciseSummary] = useState([]);
+  const [showExerciseSummary, setShowExerciseSummary] = useState(true);
 
   const handleFieldToggle = (field) => {
     setSelectedFields((prev) =>
@@ -231,6 +234,37 @@ const History = () => {
     fetchHistory(period, selectedFields, startDate, endDate);
   };
 
+  // Fetch exercise summary (max completed and assigned rounds per exercise per day/week/month)
+  const fetchExerciseSummary = async () => {
+    try {
+      // Call new backend summary endpoint
+      const res = await historyService.fetchExerciseRoundsSummary(userId, startDate, endDate);
+      // res.data: [{ exerciseId, year, month, day, maxCompletedRounds, assignedRound }]
+      // You may want to fetch exercise names for display
+      const exerciseMap = {};
+      if (exerciseList.length > 0) {
+        exerciseList.forEach(ex => { exerciseMap[ex._id] = ex.name; });
+      }
+      // Group by date for table display
+      const summaryByDate = {};
+      (res.data || []).forEach(row => {
+        let dateLabel = '';
+        if (currentPeriod === 'day') dateLabel = `${row.day}/${row.month}/${row.year}`;
+        else if (currentPeriod === 'week') dateLabel = `W${row.week} ${row.year}`;
+        else dateLabel = `${row.month}/${row.year}`;
+        if (!summaryByDate[dateLabel]) summaryByDate[dateLabel] = [];
+        summaryByDate[dateLabel].push({
+          exerciseName: exerciseMap[row.exerciseId] || row.exerciseId,
+          assignedRound: row.assignedRound,
+          maxCompletedRounds: row.maxCompletedRounds
+        });
+      });
+      setExerciseSummary(summaryByDate);
+    } catch (err) {
+      setExerciseSummary({});
+    }
+  };
+
   useEffect(() => {
     fetchHistory(currentPeriod, selectedFields, startDate, endDate);
     // eslint-disable-next-line
@@ -284,6 +318,11 @@ const History = () => {
     }
     fetchExercises();
   }, []);
+
+  useEffect(() => {
+    fetchExerciseSummary();
+    // eslint-disable-next-line
+  }, [userId, selectedExerciseId, startDate, endDate, currentPeriod, exerciseList]);
 
   return (
     <>
@@ -409,8 +448,62 @@ const History = () => {
                     </Nav>
                   </div>
                 </Row>
+                {/* Add toggle button here, always visible */}
+                <div className="d-flex justify-content-end" style={{marginTop: 8}}>
+                  <button
+                    className="btn btn-sm btn-secondary"
+                    style={{ minWidth: 120, fontWeight: 600 }}
+                    onClick={() => setShowExerciseSummary((prev) => !prev)}
+                  >
+                    {showExerciseSummary ? 'Hide' : 'Show'} Exercise Summary
+                  </button>
+                </div>
               </CardHeader>
               <CardBody>
+                {/* Exercise Rounds Summary Table */}
+                {showExerciseSummary && (
+                  <div style={{ marginBottom: 24 }}>
+                    <h4>Exercise Rounds Summary</h4>
+                    {Object.keys(exerciseSummary).length === 0 ? (
+                      <table style={{ width: '100%', background: '#222', color: '#fff', borderRadius: 8, marginBottom: 16 }}>
+                        <thead>
+                          <tr>
+                            <th style={{ padding: 8 }}>Date</th>
+                            <th style={{ padding: 8 }}>Exercise Name</th>
+                            <th style={{ padding: 8 }}>Assigned Rounds</th>
+                            <th style={{ padding: 8 }}>Max Completed Rounds</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr><td colSpan={4} style={{ textAlign: 'center', padding: 8 }}>No data</td></tr>
+                        </tbody>
+                      </table>
+                    ) : (
+                      <table style={{ width: '100%', background: '#222', color: '#fff', borderRadius: 8, marginBottom: 16 }}>
+                        <thead>
+                          <tr>
+                            <th style={{ padding: 8 }}>Date</th>
+                            <th style={{ padding: 8 }}>Exercise Name</th>
+                            <th style={{ padding: 8 }}>Assigned Rounds</th>
+                            <th style={{ padding: 8 }}>Max Completed Rounds</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(exerciseSummary).map(([date, rows]) =>
+                            rows.map((row, idx) => (
+                              <tr key={date + '-' + idx}>
+                                <td style={{ padding: 8 }}>{date}</td>
+                                <td style={{ padding: 8 }}>{row.exerciseName}</td>
+                                <td style={{ padding: 8 }}>{row.assignedRound}</td>
+                                <td style={{ padding: 8 }}>{row.maxCompletedRounds}</td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                )}
                 <div className="chart d-flex justify-content-center align-items-center" style={{ minHeight: '450px' }}>
                   {chartData.labels ? (
                     <Line

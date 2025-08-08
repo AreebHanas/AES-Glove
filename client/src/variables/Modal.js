@@ -19,10 +19,14 @@ function AddModal(props) {
   const [formData, setFormData] = useState({
     email: editUser?.email || '',
     password: '',
+    name: editUser?.name || '',
+    macAddress: editUser?.macAddress || '',
     isEmailValid: false,
     isPasswordValid: false,
+    isNameValid: false,
     emailError: "",
-    passwordError: ""
+    passwordError: "",
+    nameError: ""
   });
 
   React.useEffect(() => {
@@ -31,6 +35,8 @@ function AddModal(props) {
         ...prev,
         email: editUser.email || '',
         password: '',
+        name: editUser.name || '',
+        macAddress: editUser.macAddress || '',
       }));
     }
   }, [isEdit, editUser]);
@@ -60,7 +66,7 @@ function AddModal(props) {
           emailError: "",
         }));
       }
-    
+
       // Only require password for create, not for edit
       if (!isEdit && (formData.password === "" || formData.password.length <= 8)) {
         setFormData((prev) => ({
@@ -76,7 +82,27 @@ function AddModal(props) {
           passwordError: "",
         }));
       }
-    
+
+      // Name validation (required)
+      if (formData.name === "") {
+        setFormData((prev) => ({
+          ...prev,
+          isNameValid: false,
+          nameError: "Please enter a user name",
+        }));
+        isValid = false;
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          isNameValid: true,
+          nameError: "",
+        }));
+      }
+      // MAC address validation (required)
+      if (formData.macAddress === "") {
+        toast.error("Please enter a MAC address");
+        isValid = false;
+      }
       return isValid;
     };
     
@@ -86,6 +112,8 @@ function AddModal(props) {
       const data = {
         email: formData.email,
         password: formData.password,
+        name: formData.name,
+        macAddress: formData.macAddress,
         ...(isEdit && editUser? { user_id: editUser._id } : {})
       };
       let result;
@@ -126,6 +154,18 @@ function AddModal(props) {
         <ModalBody>
         <Form onSubmit={(e) => e.preventDefault()}>
           <FormGroup>
+            <Label for="name">User Name</Label>
+            <Input
+              type="input"
+              name="name"
+              id="name"
+              placeholder='Enter user name'
+              onChange={handleChange}
+              value={formData.name}
+            />
+            {!formData.isNameValid && <small style={{ color: "red" }}>{formData.nameError}</small>}
+          </FormGroup>
+          <FormGroup>
             <Label for="email">Email</Label>
             <Input
               type="input"
@@ -150,6 +190,18 @@ function AddModal(props) {
             >
             </Input>
             {!formData.isPasswordValid && <small style={{ color: "red" }}>{formData.passwordError}</small>}
+          </FormGroup>
+          <FormGroup>
+            <Label for="macAddress">MAC Address</Label>
+            <Input
+              type="text"
+              name="macAddress"
+              id="macAddress"
+              placeholder='Enter MAC address'
+              onChange={handleChange}
+              value={formData.macAddress}
+            />
+            {/* Optionally, you can add validation error display here if needed */}
           </FormGroup>
       </Form>
         </ModalBody>

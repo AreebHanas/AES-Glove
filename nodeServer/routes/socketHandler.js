@@ -16,7 +16,7 @@ const socketHandler = (server) => {
     ws.on('message', (message) => {
       try {
         const parsed = JSON.parse(message);
-        const { event, roomId, data, exerciseId, storeData } = parsed;
+        const { event, roomId, data, exerciseId, storeData, completedRounds } = parsed;
         
 
         switch (event) {
@@ -52,14 +52,14 @@ const socketHandler = (server) => {
             break;
 
           case 'save-sensor-data':
-            if (!roomId || !storeData || exerciseId === null) {
+            if (!roomId || !storeData || exerciseId === null || completedRounds === undefined) {
               console.error("Invalid save-sensor-data message format");
               return;
             }
             // Save to DB
               const flexData = storeData.Flex || {};
               const sensorsArray = storeData.sensors || [];
-
+              console.log(completedRounds)
               const sensorObj = {
                 HR: sensorsArray.find(s => s.HR !== undefined)?.HR || null,
                 SPO2: sensorsArray.find(s => s.SPO2 !== undefined)?.SPO2 || null,
@@ -71,6 +71,7 @@ const socketHandler = (server) => {
                 userId: roomId, // assuming roomId is userId
                 exerciseId: exerciseId,
                 flex: flexData,
+                completedRounds: completedRounds,
                 sensors: sensorObj,
                 status: storeData.Status || 'Active',
                 battery: storeData.Battery || 'Unknown',
