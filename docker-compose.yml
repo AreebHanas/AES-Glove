@@ -1,0 +1,63 @@
+version: '3.8'
+
+
+services:
+  client:
+    build: 
+      context: ./client
+      dockerfile: Dockerfile
+
+    env_file:
+      - ./client/.env
+
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+      - react_build:/app/build
+
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - FAST_REFRESH=true
+
+  server:
+    build: 
+      context: ./nodeServer
+      dockerfile: Dockerfile
+
+    ports:
+      - "8080:8080"
+
+    env_file:
+      - ./nodeServer/.env
+
+    volumes:
+      - ./nodeServer:/app
+      - /app/node_modules
+
+    dns:
+      - 8.8.8.8
+
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - client
+      - server
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - react_build:/usr/share/nginx/html
+    restart: always
+
+
+volumes:
+  react_build:
