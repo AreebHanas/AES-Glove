@@ -192,7 +192,7 @@ const Patient = () => {
                             >
                               <img
                                 alt="..."
-                                src={item.avatar ? "http://localhost:8080" + item.avatar : defaultUser}
+                                src={item.avatar ? "http://20.249.219.51/:8080" + item.avatar : defaultUser}
                                 style={{ width: 50, height: 50, objectFit: 'cover' }}
                               />
                             </a>

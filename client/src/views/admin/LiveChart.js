@@ -18,7 +18,7 @@ import User from "components/Headers/User.js";
 
 const LiveChart = ()=>{
 
-  const SOCKET_URL = 'http://localhost:8080'; // 👈 or your backend URL
+  const SOCKET_URL = 'http://20.249.219.51/:8080'; // 👈 or your backend URL
 
   const [socket, setSocket] = useState(null);
   const [dataLog, setDataLog] = useState([]);
