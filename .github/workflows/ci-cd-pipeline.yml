@@ -1,0 +1,35 @@
+name: CI/CD to Azure VM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  cd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: SCP Files to Azure VM
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USER }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          source: "docker-compose.yml,client,server"
+          target: "/home/${{ secrets.AZURE_USER }}/aes"
+
+      - name: SSH and Deploy with docker-compose
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USER }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.AZURE_USER }}/aes
+            docker-compose down
+            docker-compose build
+            docker-compose up -d

@@ -2,6 +2,7 @@ import { createSlice, current } from "@reduxjs/toolkit";
 
 const initialState = {
     processingExerciseId: null,
+    sensor: null,
     isTimerComplete: false,
     isStarted: false,
     timerId: null
@@ -13,6 +14,9 @@ const processingExercise = createSlice({
     reducers: {
         setProcessingExerciseId: (state, action) => {
             state.processingExerciseId = action.payload;
+        },
+        setSensor: (state, action) => {
+            state.sensor = action.payload;
         },
         setIsTimerComplete: (state, action) => {
             state.isTimerComplete = action.payload;
@@ -26,5 +30,5 @@ const processingExercise = createSlice({
     }
 });
 
-export const { setProcessingExerciseId, setIsTimerComplete, setIsStarted, setTimerId } = processingExercise.actions;
+export const { setSensor, setProcessingExerciseId, setIsTimerComplete, setIsStarted, setTimerId } = processingExercise.actions;
 export default processingExercise.reducer;

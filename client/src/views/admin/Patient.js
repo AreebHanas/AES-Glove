@@ -107,6 +107,8 @@ const Patient = () => {
     }
   };
 
+  console.log(items.avatar)
+
   return (
     <>
       <Header refresh={headerRefresh} />
@@ -162,6 +164,7 @@ const Patient = () => {
                 <thead>
                   <tr className="align-items-center text-center">
                     {/* <th scope="col">Patient ID</th> */}
+                    <th scope="col" className="text-center">User Name</th>
                     <th scope="col" className="text-center">User email</th>
                     <th scope="col" className="text-center">Status</th>
                     <th scope="col" className="text-center">Actions</th>
@@ -170,12 +173,15 @@ const Patient = () => {
                 <tbody>
                   {items.length === 0 ? (
                     <tr>
-                      <td colSpan="3" className="text-center text-white">No patient account</td>
+                      <td colSpan="4" className="text-center text-white">No patient account</td>
                     </tr>
                   ) : (
                     items.map((item) => (
                       <tr key={item._id} className="text-center">
                         {/* <td>{item._id}</td> */}
+                        <td className="align-middle text-center">
+                          <span className="mb-0 text-sm">{item.name || '-'}</span>
+                        </td>
                         <td className="align-middle text-center">
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 12 }}>
                             <a
@@ -186,7 +192,8 @@ const Patient = () => {
                             >
                               <img
                                 alt="..."
-                                src={item.avatar ? item.avatar : defaultUser}
+                                src={item.avatar ? "http://localhost:8080" + item.avatar : defaultUser}
+                                style={{ width: 50, height: 50, objectFit: 'cover' }}
                               />
                             </a>
                             <span className="mb-0 text-sm" style={{ display: 'inline-block', verticalAlign: 'middle', textAlign: 'left' }}>{item.email}</span>

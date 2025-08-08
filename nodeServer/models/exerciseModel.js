@@ -16,6 +16,10 @@ const exerciseSchema = new mongoose.Schema({
         required: true,
         default: true,
     },
+    sensor:{
+        type: String,
+        default: null
+    }
 },
 {timestamps: true}
 );

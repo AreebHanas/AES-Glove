@@ -13,7 +13,7 @@ const sensorDataSchema = new mongoose.Schema({
   },
   timestamp: {
     type: Date,
-    default: Date.now, // helps with filtering by week/month
+    default: Date.now,
   },
   flex: {
     EF_Flex: Number,
@@ -25,10 +25,14 @@ const sensorDataSchema = new mongoose.Schema({
     WF_Flex: Number,
   },
   sensors: {
-    HR: Number,         // Heart Rate
-    SPO2: Number,       // Blood oxygen
+    HR: Number,
+    SPO2: Number,
     EMG: Number,
     Pressure: Number,
+  },
+  completedRounds: {
+    type: Number,
+    default: 0,
   },
   status: {
     type: String,
@@ -39,7 +43,7 @@ const sensorDataSchema = new mongoose.Schema({
     default: 'Not Configured',
   },
 }, {
-  timestamps: true, // gives you createdAt & updatedAt
+  timestamps: true,
 });
 
 const SensorData = mongoose.model('SensorData', sensorDataSchema);

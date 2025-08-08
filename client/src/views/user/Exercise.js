@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 // reactstrap components
 import {
   Badge,
@@ -16,22 +16,48 @@ import { useSelector } from "react-redux";
 import User from "components/Headers/User.js";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setProcessingExerciseId, setIsTimerComplete, setTimerId, setIsStarted } from "store/processingExercise/processingExercise.js";
+import { setSensor, setProcessingExerciseId, setIsTimerComplete, setTimerId, setIsStarted } from "store/processingExercise/processingExercise.js";
 import { useWebSocket } from "customHooks/webShocketHook";
-
 
 const UserExercise = () => {
   const { user } = useSelector(state => state.user);
   const dispatch = useDispatch();
   const { processingExerciseId, isStarted, isTimerComplete, timerId } = useSelector(state => state.processingExercise);
   const [items, setItems] = useState([]);
-  // const [isStarted, setIsStarted] = useState(false);
-  // const [isTimerComplete,setIsTimerComplete] = useState(false)
-  // const [timerId,setTimerId] = useState(null)
   const TIMER_DURATION = 20000;
+  const [completedRounds,setCompleteRounds] = useState({})
+
+  useEffect(() => {
+    // Always initialize completedRounds for all items
+    if (items.length > 0) {
+      const initialVariable = {};
+      for (let i = 0; i < items.length; i++) {
+        initialVariable[`exercise${i}`] = 0;
+      }
+      setCompleteRounds(initialVariable);
+    }
+  }, [items]);
   
   const {wsRef}  = useWebSocket();
+  let {rounds} = useWebSocket()
   const navigate = useNavigate();
+
+  const calculateCompletedRounds = () => {
+    console.log("Calculating completed rounds...");
+    const index = items.findIndex(item => item.exerciseDetails._id === processingExerciseId && item.status === true);
+    if (index > 0) {
+      const completedRounds = rounds? rounds : 0;
+      setCompleteRounds(prev => ({...prev, [`exercise${index}`]: completedRounds}));
+      if (completedRounds === items[index].round) {
+        toast.success(`Exercise ${items[index].exerciseDetails.name} completed!`);
+        dispatch(setProcessingExerciseId(null));
+        dispatch(setIsStarted(false));
+      }
+    }
+  };
+
+
+
 
   const fetchPatientExercise = async () => {
     const result = await userService.getPatientExercise(user.id);
@@ -42,15 +68,17 @@ const UserExercise = () => {
         setItems(result.data);
     }
   };
-  
 
   
-  const processHandler = (isStart,exerciseId) => {
+  const processHandler = (isStart,exerciseId, sensor) => {
     dispatch(setIsStarted(isStart));
+    rounds = 0
     if (isStart) {
-      dispatch(setProcessingExerciseId(exerciseId));   
+      dispatch(setProcessingExerciseId(exerciseId));
+      dispatch(setSensor(sensor));   
     } else {
       dispatch(setProcessingExerciseId(null));
+      dispatch(setSensor(null));
     }
   }
 
@@ -88,8 +116,6 @@ const UserExercise = () => {
           clearInterval(interval);
           dispatch(setProcessingExerciseId(null));
           dispatch(setIsTimerComplete(true));
-          // console.log(isStarted, timerId)
-          // console.log("isTimeComplete",isTimerComplete)
           toast.dismiss('timer-toast');
           toast.success('Timer completed!');
         }, TIMER_DURATION);
@@ -102,6 +128,7 @@ const UserExercise = () => {
 
   const reset = ()=>{
     dispatch(setProcessingExerciseId(null));
+    dispatch(setSensor(null));
     dispatch(setIsStarted(false));
     dispatch(setIsTimerComplete(false));
     if (timerId) {
@@ -109,6 +136,27 @@ const UserExercise = () => {
       toast.dismiss('timer-toast');
     }
   }
+
+  console.log(completedRounds)
+
+  useEffect(() => {
+    calculateCompletedRounds();
+  },[rounds])
+
+  // Real-time update of completedRounds from WebSocket
+  useEffect(() => {
+    if (!wsRef.current?.data) return;
+    const { rounds } = wsRef.current.data;
+    const index = items.findIndex(item => item.exerciseDetails._id === processingExerciseId && item.status === true);
+    if (index >= 0) {
+      setCompleteRounds(prev => ({ ...prev, [`exercise${index}`]: rounds }));
+      if (rounds === items[index].exerciseDetails.round) {
+        toast.success(`Exercise ${items[index].exerciseDetails.name} completed!`);
+        dispatch(setProcessingExerciseId(null));
+        dispatch(setIsStarted(false));
+      }
+    }
+  }, [ items, processingExerciseId]);
 
   useEffect(() => {
     fetchPatientExercise();
@@ -145,8 +193,8 @@ const UserExercise = () => {
                   <tr className="align-items-center">
                     <th scope="col">Exercise Name</th>
                     <th scope="col">Exercise Demo</th>
-                    <th scope="col">Rounds</th>
-                    {/* <th scope="col">Status</th> */}
+                    <th scope="col" className="text-center">Rounds</th>
+                    <th scope="col" className="text-center">Completed Rounds</th> 
                     <th scope="col" className="text-center">Actions</th>
                   </tr>
                 </thead>
@@ -156,14 +204,15 @@ const UserExercise = () => {
                       <td colSpan="4" className="text-center text-white">No exercise assigned</td>
                     </tr>
                   ) : (
-                    items.filter((active)=>active.status === true).map((item) => (
+                    items.filter((active)=>active.status === true).map((item,index) => (
                       <tr key={item.exerciseDetails._id}>
                         <td>{item.exerciseDetails.name}</td>
                         <td><a className="mb-0 text-sm" href={item.exerciseDetails.url} target="_blank" rel="noopener noreferrer">{item.exerciseDetails.url}</a></td>
-                        <td>{item.round}</td>
+                        <td className="text-center">{item.round}</td>
+                        <td className="text-center">{completedRounds[`exercise${index + 1}`]}</td>
                         <td className="text-center">
-                          <Button color="success" disabled={isStarted || !isTimerComplete} onClick={(e) => processHandler(true,item.exerciseDetails._id)}>Start</Button>
-                          <Button color="danger" disabled={!isStarted} onClick={(e) => processHandler(false,item.exerciseDetails._id)}>End</Button>
+                          <Button color="success" disabled={isStarted || !isTimerComplete} onClick={(e) => processHandler(true,item.exerciseDetails._id, item.exerciseDetails.sensor)}>Start</Button>
+                          <Button color="danger" disabled={!isStarted} onClick={(e) => processHandler(false,item.exerciseDetails._id, item.exerciseDetails.sensor)}>End</Button>
                         </td>
                       </tr>
                     ))

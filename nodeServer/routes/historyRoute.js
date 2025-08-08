@@ -20,4 +20,17 @@ router.post('/', async (req, res) => {
   }
 });
 
+// @route   POST /api/history/rounds-summary
+// @desc    Get max completed and assigned rounds per exercise per period
+router.post('/rounds-summary', async (req, res) => {
+  const { userId, period = 'day', startDate, endDate } = req.body;
+  try {
+    const data = await HistoryService.getExerciseRoundsSummary(userId, startDate, endDate);
+    res.status(200).json(data);
+  } catch (error) {
+    console.error('History rounds-summary route error:', error);
+    res.status(500).json({ message: 'Failed to fetch exercise rounds summary' });
+  }
+});
+
 export default router;

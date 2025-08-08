@@ -15,6 +15,16 @@ class historyService {
         }
     }
 
+    // Add: fetchExerciseRoundsSummary for summary table
+    async fetchExerciseRoundsSummary(userId, startDate, endDate) {
+        try {
+            const result = await axios.post(`${BASE_URL}/history/rounds-summary`, { userId, startDate, endDate });
+            return { msg: "summary fetched", error: false, data: result.data };
+        } catch (error) {
+            console.error("Error in fetchExerciseRoundsSummary:", error);
+            throw error;
+        }
+    }
 }
 
 const history = new historyService();
