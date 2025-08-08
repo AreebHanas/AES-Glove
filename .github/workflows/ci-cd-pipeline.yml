@@ -22,6 +22,7 @@ jobs:
           key: ${{ secrets.AZURE_SSH_KEY }}
           source: "docker-compose.yml,client,nodeServer,nginx"
           target: "/home/${{ secrets.AZURE_USER }}/aes"
+          overwrite: true
 
       - name: SSH and Deploy with docker-compose
         uses: appleboy/ssh-action@v1.0.0
