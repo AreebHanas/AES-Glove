@@ -20,7 +20,7 @@ jobs:
           host: ${{ secrets.AZURE_HOST }}
           username: ${{ secrets.AZURE_USER }}
           key: ${{ secrets.AZURE_SSH_KEY }}
-          source: "docker-compose.yml,client,nodeServer"
+          source: "Docker-compose.yml,client,nodeServer"
           target: "/home/${{ secrets.AZURE_USER }}/aes"
 
       - name: SSH and Deploy with docker-compose
