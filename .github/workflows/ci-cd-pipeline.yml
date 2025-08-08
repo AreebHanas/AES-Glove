@@ -31,6 +31,7 @@ jobs:
           key: ${{ secrets.AZURE_SSH_KEY }}
           script: |
             cd /home/${{ secrets.AZURE_USER }}/aes
+            set -e
             docker-compose down
             docker-compose build
             docker-compose up -d
