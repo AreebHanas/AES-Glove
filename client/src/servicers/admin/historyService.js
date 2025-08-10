@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8080/api"
+const BASE_URL = "http://20.249.219.51:8080/api"
 
 class historyService {
 

@@ -4,7 +4,7 @@ class authService {
 
     async seeder(){
         try {
-            const response = await axios.get("http://127.0.0.1:8080/api/seeder");
+            const response = await axios.get("http://20.249.219.51:8080/api/seeder");
             return {error:false, msg:response.data.msg, data:response.data}
         } catch (err) {
             console.log("error: ", err.message)
@@ -16,7 +16,7 @@ class authService {
     async loginUser(data){
 
         try {
-            const response = await axios.post("http://127.0.0.1:8080/api/login", data);
+            const response = await axios.post("http://20.249.219.51:8080/api/login", data);
             return {error:response.data.error, msg:response.data.msg, resData:response.data}
         } catch (err) {
             console.log("error: ", err.message)

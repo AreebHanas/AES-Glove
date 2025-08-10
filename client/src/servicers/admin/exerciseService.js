@@ -2,7 +2,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const BASE_URL = "http://127.0.0.1:8080/api/exercise";
+const BASE_URL = "http://20.249.219.51:8080/api/exercise";
 
 class ExerciseService {
   async fetchExercise() {
