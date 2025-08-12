@@ -54,7 +54,7 @@ services:
       - client
       - server
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - react_build:/usr/share/nginx/html
     restart: always
 
