@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    description: {
+        type: String,
+        default: ''
+    },
     online: {
         type: Boolean,
         default: false

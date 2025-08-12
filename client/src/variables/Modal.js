@@ -21,12 +21,13 @@ function AddModal(props) {
     password: '',
     name: editUser?.name || '',
     macAddress: editUser?.macAddress || '',
-    isEmailValid: false,
-    isPasswordValid: false,
-    isNameValid: false,
-    emailError: "",
-    passwordError: "",
-    nameError: ""
+  isEmailValid: false,
+  isPasswordValid: false,
+  isNameValid: false,
+  emailError: "",
+  passwordError: "",
+  nameError: "",
+  description: editUser?.description || ""
   });
 
   React.useEffect(() => {
@@ -37,16 +38,17 @@ function AddModal(props) {
         password: '',
         name: editUser.name || '',
         macAddress: editUser.macAddress || '',
+        description: editUser.description || '',
       }));
     }
   }, [isEdit, editUser]);
 
   const handleChange = (e) => {
-     const {value,name} = e.target
-     setFormData((prev)=>({
-      ...prev,
-      [name]:value
-     }))
+    const {value,name} = e.target
+    setFormData((prev)=>({
+    ...prev,
+    [name]:value
+    }))
   }
 
   const validateInputs = () => {
@@ -114,6 +116,7 @@ function AddModal(props) {
         password: formData.password,
         name: formData.name,
         macAddress: formData.macAddress,
+        description: formData.description,
         ...(isEdit && editUser? { user_id: editUser._id } : {})
       };
       let result;
@@ -202,6 +205,17 @@ function AddModal(props) {
               value={formData.macAddress}
             />
             {/* Optionally, you can add validation error display here if needed */}
+          </FormGroup>
+          <FormGroup>
+            <Label for="description">Description</Label>
+            <Input
+              type="textarea"
+              name="description"
+              id="description"
+              placeholder='Enter user description'
+              onChange={handleChange}
+              value={formData.description}
+            />
           </FormGroup>
       </Form>
         </ModalBody>

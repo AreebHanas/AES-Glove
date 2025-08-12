@@ -103,6 +103,7 @@ class AuthService {
           status: user.status,
           exercise: user.exercise,
           avatar: user.avatar,
+          description: user.description ? user.description : '',
         },
       };
 

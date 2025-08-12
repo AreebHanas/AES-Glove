@@ -27,7 +27,8 @@ import {
 } from "variables/charts.js";
 
 import User from "components/Headers/User.js";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setCurrentUser } from "../../store/user/userSlice";
 import userService from "../../servicers/admin/userService.js";
 
 const Index = (props) => {
@@ -43,6 +44,8 @@ const Index = (props) => {
     setActiveNav(index);
     setChartExample1Data("data" + index);
   };
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -81,6 +84,15 @@ const Index = (props) => {
       }
     };
     fetchUserStats();
+
+    // Set description in Redux if available on login (from props or localStorage)
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (userData && userData.description) {
+      dispatch(setCurrentUser({
+        ...userData,
+        description: userData.description
+      }));
+    }
     // eslint-disable-next-line
   }, []);
 

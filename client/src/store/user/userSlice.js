@@ -3,20 +3,22 @@ import { createSlice, current } from "@reduxjs/toolkit";
 const initialState = {
     user: {
         // Store all user details except password
-        name: null,
-        email: null,
-        id: null,
-        avatar: null,
-        userRole: null,
-        status: null,
-        macAddress: null // <-- Added macAddress
+    name: null,
+    email: null,
+    id: null,
+    avatar: null,
+    userRole: null,
+    status: null,
+    macAddress: null, // <-- Added macAddress
+    description: null // <-- Added description
     },
     currentUser: {
-        name: null,
-        email: null,
-        id: null,
-        userRole: null,
-        macAddress: null // <-- Added macAddress
+    name: null,
+    email: null,
+    id: null,
+    userRole: null,
+    macAddress: null, // <-- Added macAddress
+    description: null // <-- Added description
     }
 };
 
@@ -38,6 +40,7 @@ const user = createSlice({
             state.currentUser.userRole = action.payload.userRole;
             state.currentUser.name = action.payload.name;
             state.currentUser.macAddress = action.payload.macAddress;
+            state.currentUser.description = action.payload.description;
         }
     }
 });

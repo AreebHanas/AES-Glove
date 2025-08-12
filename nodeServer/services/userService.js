@@ -18,7 +18,7 @@ class UserService {
                     return { error: true, message: 'Default exercise not found' };
                 }
             }
-            return { message: 'created', id: user._id, role: user.userRole, error: false };
+                return { message: 'created', id: user._id, role: user.userRole, error: false, description: user.description };
         } catch (error) {
             error.message = error.message.includes('duplicate key error') ? 'User already exists' : error.message;
             return { error: true, message: error.message }  ;
@@ -47,7 +47,9 @@ class UserService {
             if (password && password.trim() !== "") {
                 updateData.password = await bcrypt.hash(password, 10);
             }
-            await userModel.findByIdAndUpdate(user_id, updateData);
+                const { description } = userDetails;
+                if (description !== undefined) updateData.description = description;
+                await userModel.findByIdAndUpdate(user_id, updateData);
             return { status: 'updated' };
         } catch (error) {
             return { error: true, message: error.message };
@@ -58,7 +60,8 @@ class UserService {
         try {
             // Include status, name, and macAddress fields so frontend can toggle and display correctly
             const users = await userModel.find({userRole:'user'}, { email: 1, status: 1, _id: 1, userRole: 1, name: 1, macAddress: 1, avatar: 1 });
-            return { users };
+                const usersWithDescription = await userModel.find({userRole:'user'}, { email: 1, status: 1, _id: 1, userRole: 1, name: 1, macAddress: 1, avatar: 1, description: 1 });
+                return { users: usersWithDescription };
         } catch (error) {
             return { error: true, message: error.message };
         }
@@ -71,7 +74,8 @@ class UserService {
             if (!user) {
                 return { error: true, message: 'User not found' };
             }
-            return { user };
+                const userWithDescription = await userModel.findById(user_id, { email: 1, name: 1, macAddress: 1, description: 1 });
+                return { user: userWithDescription };
         } catch (error) {
             return { error: true, message: error.message };
         }
