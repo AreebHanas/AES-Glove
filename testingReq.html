@@ -38,7 +38,7 @@
   <script>
     let socket;
     let interval;
-    const roomId = '68603f920b33b7507cdd73f2'; // Update as needed
+    const roomId = '682ecf8e63b429051ab6389b'; // Update as needed
     const statusEl = document.getElementById('status');
     const logEl = document.getElementById('log');
 
@@ -85,7 +85,7 @@
       }
 
       // Fix the WebSocket URL scheme — should be ws:// not http://
-      socket = new WebSocket('ws://20.249.219.51/:8080');
+      socket = new WebSocket('ws://20.249.219.51:8080');
 
       socket.addEventListener('open', () => {
         statusEl.textContent = "Status: Connected";
