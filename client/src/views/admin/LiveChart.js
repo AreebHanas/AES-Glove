@@ -251,6 +251,7 @@ const LiveChart = ()=>{
     const message = JSON.parse(event.data);
     if (message.event !== 'test-data') return;
     const { data } = message;
+    console.log(data)
     if (data.Flex) {
       setDataLog(prev => ([...prev, { ...data }]));
     }
