@@ -49,13 +49,14 @@ const LiveChart = ()=>{
     "TF_Flex", "WF_Flex"
   ];
   const flexSensorNames = [
-    "1st Finger", "2nd Finger", "3rd Finger", "4th Finger",
-    "5th Finger", "6th Finger", "7th Finger"
+    "EF_Flex", "IF_Flex", "MF_Flex", "PF_Flex", "RF_Flex",
+    "TF_Flex", "WF_Flex"
   ];
   const flexClassifiers = [
     classifyFlexValue01, classifyFlexValue02, classifyFlexValue03, classifyFlexValue04,
     classifyFlexValue05, classifyFlexValue06, classifyFlexValue07
   ];
+  
   const [flexSeries, setFlexSeries] = useState(
     flexSensorNames.map((name) => ({ name, data: [] }))
   );
@@ -219,8 +220,8 @@ const LiveChart = ()=>{
         mix:0
       },
       yaxis: {
-        max: 150,
-        min:50
+        max: 100,
+        min:0
       },
       legend: {
         show: false
@@ -252,7 +253,14 @@ const LiveChart = ()=>{
     const message = JSON.parse(event.data);
     if (message.event !== 'test-data') return;
     const { data } = message;
-    console.log("Received data:", data);
+    console.log(data)
+    console.log("PF:", data.Flex.PF_Flex);
+    console.log("EF:", data.Flex.EF_Flex);
+    console.log("IF:", data.Flex.IF_Flex);
+    console.log("RF:", data.Flex.RF_Flex);
+    console.log("MF:", data.Flex.MF_Flex);
+    console.log("WF:", data.Flex.WF_Flex);
+    console.log("TF:", data.Flex.TF_Flex);
     if (data.Flex) {
       setDataLog(prev => ([...prev, { ...data }]));
     }
@@ -280,12 +288,9 @@ const LiveChart = ()=>{
     }
     // HR (keep your original HR logic)
     const hr = Array.isArray(data.sensors) && data.sensors[0]?.HR;
-    let hrValue;
-    if (hr > 100) hrValue = hr - hr * 20/100
-    else hrValue = hr - hr * 10/100
     if (hr !== undefined) {
       setData((prev) => {
-        const updated = [...prev, { x: currentTime, y: hrValue }];
+        const updated = [...prev, { x: currentTime, y: hr }];
         setState((prevState) => ({
           ...prevState,
           series: [{ ...prevState.series[0], data: updated }]
