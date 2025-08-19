@@ -19,19 +19,19 @@ export const classifyFlexValue03 = (value) => {
   return "Full Bend";
 };
 export const classifyFlexValue04 = (value) => {
-  if (value < 5000) return "No Bend";
-  if (value < 3200) return  "Almost No Bend";
-  if (value < 1400) return "Almost Full Bend";
+  if (value > 5500) return "No Bend";
+  if (value > 2000) return  "Almost No Bend";
+  if (value > 600) return "Almost Full Bend";
   return "Full Bend";
 };
 export const classifyFlexValue05 = (value) => {
-  if (value < 5000) return "No Bend";
-  if (value < 3200) return  "Almost No Bend";
-  if (value < 1400) return "Almost Full Bend";
+  if (value > 9000) return "No Bend";
+  if (value > 4000) return  "Almost No Bend";
+  if (value > 2000) return "Almost Full Bend";
   return "Full Bend";
 };
 export const classifyFlexValue06 = (value) => {
-  if (value > 5000) return "No Bend";
+  if (value > 6000) return "No Bend";
   if (value < 3200) return  "Almost No Bend";
   if (value < 1400) return "Almost Full Bend";
   return "Full Bend";
