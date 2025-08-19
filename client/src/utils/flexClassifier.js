@@ -7,9 +7,9 @@ export const classifyFlexValue01 = (value) => {
   return "Full Bend";
 };
 export const classifyFlexValue02 = (value) => {
-  if (value < 5000) return "No Bend";
-  if (value < 3200) return  "Almost No Bend";
-  if (value < 1400) return "Almost Full Bend";
+  if (value > 6000) return "No Bend";
+  if (value > 3200) return  "Almost No Bend";
+  if (value > 1400) return "Almost Full Bend";
   return "Full Bend";
 };
 export const classifyFlexValue03 = (value) => {
