@@ -220,6 +220,7 @@ const LiveChart = ()=>{
       },
       yaxis: {
         max: 150,
+        min:50
       },
       legend: {
         show: false
