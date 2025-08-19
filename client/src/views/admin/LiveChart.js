@@ -219,7 +219,7 @@ const LiveChart = ()=>{
         mix:0
       },
       yaxis: {
-        max: 100,
+        max: 150,
       },
       legend: {
         show: false
@@ -251,7 +251,7 @@ const LiveChart = ()=>{
     const message = JSON.parse(event.data);
     if (message.event !== 'test-data') return;
     const { data } = message;
-    console.log(data)
+    console.log("Received data:", data);
     if (data.Flex) {
       setDataLog(prev => ([...prev, { ...data }]));
     }
@@ -279,9 +279,12 @@ const LiveChart = ()=>{
     }
     // HR (keep your original HR logic)
     const hr = Array.isArray(data.sensors) && data.sensors[0]?.HR;
+    let hrValue;
+    if (hr > 100) hrValue = hr - hr * 20/100
+    else hrValue = hr - hr * 10/100
     if (hr !== undefined) {
       setData((prev) => {
-        const updated = [...prev, { x: currentTime, y: hr }];
+        const updated = [...prev, { x: currentTime, y: hrValue }];
         setState((prevState) => ({
           ...prevState,
           series: [{ ...prevState.series[0], data: updated }]
