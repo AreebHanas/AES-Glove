@@ -253,14 +253,14 @@ const LiveChart = ()=>{
     const message = JSON.parse(event.data);
     if (message.event !== 'test-data') return;
     const { data } = message;
-    console.log(data)
-    console.log("PF:", data.Flex.PF_Flex);
-    console.log("EF:", data.Flex.EF_Flex);
-    console.log("IF:", data.Flex.IF_Flex);
-    console.log("RF:", data.Flex.RF_Flex);
-    console.log("MF:", data.Flex.MF_Flex);
-    console.log("WF:", data.Flex.WF_Flex);
-    console.log("TF:", data.Flex.TF_Flex);
+    // console.log(data)
+    // console.log("PF:", data.Flex.PF_Flex);
+    // console.log("EF:", data.Flex.EF_Flex);
+    // console.log("IF:", data.Flex.IF_Flex);
+    // console.log("RF:", data.Flex.RF_Flex);
+    // console.log("MF:", data.Flex.MF_Flex);
+    // console.log("WF:", data.Flex.WF_Flex);
+    // console.log("TF:", data.Flex.TF_Flex);
     if (data.Flex) {
       setDataLog(prev => ([...prev, { ...data }]));
     }
@@ -295,6 +295,9 @@ const LiveChart = ()=>{
     else if (hr > 150) hrValue = hr - hr * 35/100
     else if (hr > 160) hrValue = hr - hr * 40/100
     else hrValue = hr - hr * 50/100
+
+    console.log(hr);
+    console.log("hrValue: ",hrValue);
     if (hr !== undefined) {
       setData((prev) => {
         const updated = [...prev, { x: currentTime, y: hrValue }];
