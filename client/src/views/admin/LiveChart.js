@@ -220,8 +220,8 @@ const LiveChart = ()=>{
         mix:0
       },
       yaxis: {
-        max: 100,
-        min:0
+        max: 150,
+        min:50
       },
       legend: {
         show: false
@@ -288,9 +288,16 @@ const LiveChart = ()=>{
     }
     // HR (keep your original HR logic)
     const hr = Array.isArray(data.sensors) && data.sensors[0]?.HR;
+    let hrValue
+    if (hr >= 100) hrValue = hr - hr * 10/100
+    else if (hr > 120) hrValue = hr - hr * 20/100
+    else if (hr > 140) hrValue = hr - hr * 30/100
+    else if (hr > 150) hrValue = hr - hr * 35/100
+    else if (hr > 160) hrValue = hr - hr * 40/100
+    else hrValue = hr - hr * 50/100
     if (hr !== undefined) {
       setData((prev) => {
-        const updated = [...prev, { x: currentTime, y: hr }];
+        const updated = [...prev, { x: currentTime, y: hrValue }];
         setState((prevState) => ({
           ...prevState,
           series: [{ ...prevState.series[0], data: updated }]
