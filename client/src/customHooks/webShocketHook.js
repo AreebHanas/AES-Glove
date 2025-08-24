@@ -19,6 +19,7 @@ export const WebSocketProvider = ({ children }) => {
   const [rounds, setRounds] = useState(0);
   const { processingExerciseId, sensor } = useSelector((state) => state.processingExercise);
   const { user } = useSelector((state) => state.user);
+  const [isRapCountTrue, setIsRapCountTrue] = useState(false);
   
   useEffect(() => {
     let prevValueRef = { value: null };
@@ -54,9 +55,16 @@ export const WebSocketProvider = ({ children }) => {
         }
 
         // Check for transition from 'Full Bend' to 'Almost No Bend'
-        if ( currentValue === 'Full Bend') {
-          roundsRef.current++;
-          setRounds(roundsRef.current);
+        if (isRapCountTrue) {
+          if ( currentValue === 'Full Bend') {
+            roundsRef.current++;
+            setIsRapCountTrue(false);
+            setRounds(roundsRef.current);
+          }
+        } else {
+          if (currentValue === 'Almost No Bend') {
+            setIsRapCountTrue(true);
+          }
         }
 
         prevValueRef.value = currentValue;
