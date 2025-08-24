@@ -19,7 +19,7 @@ export const WebSocketProvider = ({ children }) => {
   const [rounds, setRounds] = useState(0);
   const { processingExerciseId, sensor } = useSelector((state) => state.processingExercise);
   const { user } = useSelector((state) => state.user);
-  const [isRapCountTrue, setIsRapCountTrue] = useState(false);
+  const [isRapCountTrue, setIsRapCountTrue] = useState(true);
   
   useEffect(() => {
     let prevValueRef = { value: null };
