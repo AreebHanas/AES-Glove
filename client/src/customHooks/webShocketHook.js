@@ -21,6 +21,7 @@ export const WebSocketProvider = ({ children }) => {
   const { user } = useSelector((state) => state.user);
   
   useEffect(() => {
+    let prevValueRef = { value: null };
     if (processingExerciseId && user && user.id) {
       wsRef.current = new window.WebSocket(SOCKET_URL);
       const ws = wsRef.current;
@@ -29,6 +30,7 @@ export const WebSocketProvider = ({ children }) => {
       ws.onopen = () => {
         roundsRef.current = 0;
         setRounds(0);
+        prevValueRef.value = null;
         console.log("WebSocket connection established");
         ws.send(JSON.stringify({ event: "join-room", roomId }));
       };
@@ -38,28 +40,26 @@ export const WebSocketProvider = ({ children }) => {
         if (message.event !== "test-data") return;
         const { data } = message;
 
-        const classifyAndCount = (value) => {
-          if (value === 'Full Bend') {
-            roundsRef.current++;
-            setRounds(roundsRef.current);
-          }
-        };
-
-        try {
-          switch (sensor) {
-            case "EF_Flex": classifyAndCount(classifyFlexValue01(data.Flex.EF_Flex)); break;
-            case "IF_Flex": classifyAndCount(classifyFlexValue02(data.Flex.IF_Flex)); break;
-            case "MF_Flex": classifyAndCount(classifyFlexValue03(data.Flex.MF_Flex)); break;
-            case "PF_Flex": classifyAndCount(classifyFlexValue04(data.Flex.PF_Flex)); break;
-            case "RF_Flex": classifyAndCount(classifyFlexValue05(data.Flex.RF_Flex)); break;
-            case "TF_Flex": classifyAndCount(classifyFlexValue06(data.Flex.TF_Flex)); break;
-            case "WF_Flex": classifyAndCount(classifyFlexValue07(data.Flex.WF_Flex)); break;
-            default:
-              console.log('Sensor value did not match any expected flex key:', sensor);
-          }
-        } catch (err) {
-          console.error('Error in classification or counting:', err);
+        let currentValue = null;
+        switch (sensor) {
+          case "EF_Flex": currentValue = classifyFlexValue01(data.Flex.EF_Flex); break;
+          case "IF_Flex": currentValue = classifyFlexValue02(data.Flex.IF_Flex); break;
+          case "MF_Flex": currentValue = classifyFlexValue03(data.Flex.MF_Flex); break;
+          case "PF_Flex": currentValue = classifyFlexValue04(data.Flex.PF_Flex); break;
+          case "RF_Flex": currentValue = classifyFlexValue05(data.Flex.RF_Flex); break;
+          case "TF_Flex": currentValue = classifyFlexValue06(data.Flex.TF_Flex); break;
+          case "WF_Flex": currentValue = classifyFlexValue07(data.Flex.WF_Flex); break;
+          default:
+            console.log('Sensor value did not match any expected flex key:', sensor);
         }
+
+        // Check for transition from 'Full Bend' to 'Almost No Bend'
+        if (prevValueRef.value === 'Full Bend' && currentValue === 'Almost No Bend') {
+          roundsRef.current++;
+          setRounds(roundsRef.current);
+        }
+
+        prevValueRef.value = currentValue;
 
         if (processingExerciseId && user.id) {
           ws.send(JSON.stringify({
@@ -70,8 +70,6 @@ export const WebSocketProvider = ({ children }) => {
             completedRounds: roundsRef.current
           }));
         }
-
-        // ws.data = { data, rounds: roundsRef.current };
       };
 
       ws.onerror = (err) => {
