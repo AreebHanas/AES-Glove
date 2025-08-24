@@ -54,7 +54,7 @@ export const WebSocketProvider = ({ children }) => {
             console.log('Sensor value did not match any expected flex key:', sensor);
         }
 
-        if (readyForRep && prevValueRef.value === 'Almost No Bend' || prevValueRef.value === 'No Bend' && currentValue === 'Full Bend') {
+        if (readyForRep && prevValueRef.value !== 'Full Bend' && currentValue === 'Full Bend') {
           roundsRef.current++;
           setRounds(roundsRef.current);
           setReadyForRep(false);
