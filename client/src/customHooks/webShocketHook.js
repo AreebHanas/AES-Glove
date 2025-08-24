@@ -13,7 +13,7 @@ import {
 const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ children }) => {
-  const SOCKET_URL = "ws://20.249.219.51/:8080";
+  const SOCKET_URL = "ws://20.249.219.51:8080";
   const roundsRef = useRef(0);
   const wsRef = useRef(null);
   const [rounds, setRounds] = useState(0);
