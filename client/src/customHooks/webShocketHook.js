@@ -58,9 +58,9 @@ export const WebSocketProvider = ({ children }) => {
         if (currentValue === 'Full Bend') {
           if ( isRapCountTrue) {
             roundsRef.current++;
-            setIsRapCountTrue(false);
             setRounds(roundsRef.current);
           }
+          setIsRapCountTrue(false);
         } else if (currentValue === 'Almost No Bend' || currentValue === 'No Bend') {
           setIsRapCountTrue(true);
         }
