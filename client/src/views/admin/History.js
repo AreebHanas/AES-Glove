@@ -107,84 +107,110 @@ const History = () => {
 
       // Only include sensor fields in the main chart
       const mainChartFields = fields.filter(f => SENSOR_FIELDS.includes(f));
+      const flexChartFields = fields.filter(f => FLEX_FIELDS.includes(f));
 
-      if (period === 'month') {
-        mainChartFields.forEach((field) => {
-          const dataArr = data?.data.map((entry) => {
+      // Sensor fields (HR, SPO2, etc.)
+      if (mainChartFields.length > 0) {
+        if (period === 'month') {
+          mainChartFields.forEach((field) => {
+            const dataArr = data?.data.map((entry) => {
+              const key = `avg${field}`;
+              return entry[key]?.toFixed(2) || 0;
+            });
+            const color = getColorForField(field);
+            datasets.push({
+              label: FIELD_LABELS[field],
+              data: dataArr,
+              fill: false,
+              backgroundColor: '#fff',
+              borderColor: color,
+              pointRadius: 4,
+              pointBackgroundColor: color,
+            });
+          });
+          data?.data.forEach((entry) => {
+            const { year, month } = entry._id;
+            labels.push(`${month}/${year}`);
+          });
+        } else if (period === 'week') {
+          mainChartFields.forEach((field) => {
+            const dataArr = data?.data.map((entry) => {
+              const key = `avg${field}`;
+              return entry[key]?.toFixed(2) || 0;
+            });
+            const color = getColorForField(field);
+            datasets.push({
+              label: FIELD_LABELS[field],
+              data: dataArr,
+              fill: false,
+              backgroundColor: '#fff',
+              borderColor: color,
+              pointRadius: 4,
+              pointBackgroundColor: color,
+            });
+          });
+          data?.data.forEach((entry) => {
+            const { year, week } = entry._id;
+            labels.push(`W${week} ${year}`);
+          });
+        } else if (period === 'day') {
+          mainChartFields.forEach((field) => {
             const key = `avg${field}`;
-            return entry[key]?.toFixed(2) || 0;
+            const dataArr = data?.data.map((entry) => entry[key]?.toFixed(2) || 0);
+            datasets.push({
+              label: FIELD_LABELS[field],
+              data: dataArr,
+              fill: false,
+              backgroundColor: '#fff',
+              borderColor: getColorForField(field),
+              pointRadius: 4,
+              pointBackgroundColor: getColorForField(field),
+            });
           });
-          const color = getColorForField(field);
-          datasets.push({
-            label: FIELD_LABELS[field],
-            data: dataArr,
-            fill: false,
-            backgroundColor: '#fff',
-            borderColor: color,
-            pointRadius: 4,
-            pointBackgroundColor: color,
+          data?.data.forEach((entry) => {
+            const { year, month, day } = entry._id;
+            labels.push(`${day}/${month}`);
           });
-        });
-        data?.data.forEach((entry) => {
-          const { year, month } = entry._id;
-          labels.push(`${month}/${year}`);
-        });
-      } else if (period === 'week') {
-        mainChartFields.forEach((field) => {
-          const dataArr = data?.data.map((entry) => {
-            const key = `avg${field}`;
-            return entry[key]?.toFixed(2) || 0;
+        } else {
+          // fallback for raw/session data (should not be used with new backend)
+          mainChartFields.forEach((field) => {
+            const dataArr = data?.data.map((entry) => entry.sensors?.[field] || 0);
+            datasets.push({
+              label: FIELD_LABELS[field],
+              data: dataArr,
+              fill: false,
+              backgroundColor: '#fff',
+              borderColor: getColorForField(field),
+              pointRadius: 4,
+              pointBackgroundColor: getColorForField(field),
+            });
           });
-          const color = getColorForField(field);
-          datasets.push({
-            label: FIELD_LABELS[field],
-            data: dataArr,
-            fill: false,
-            backgroundColor: '#fff',
-            borderColor: color,
-            pointRadius: 4,
-            pointBackgroundColor: color,
+          data?.data.forEach((entry) => {
+            const date = new Date(entry.createdAt);
+            labels.push(date.toLocaleString());
           });
-        });
-        data?.data.forEach((entry) => {
-          const { year, week } = entry._id;
-          labels.push(`W${week} ${year}`);
-        });
-      } else if (period === 'day') {
-        mainChartFields.forEach((field) => {
+        }
+      }
+
+      // Flex fields (show classifier strings)
+      if (flexChartFields.length > 0) {
+        flexChartFields.forEach((field, idx) => {
+          const classifierFn = classifyFlex[idx];
           const key = `avg${field}`;
-          const dataArr = data?.data.map((entry) => entry[key]?.toFixed(2) || 0);
+          const dataArr = data?.data.map((entry) => {
+            const rawVal = entry[key];
+            return classifierFn ? classifierFn(Number(rawVal)) : rawVal;
+          });
+          const color = getColorForField(field);
           datasets.push({
-            label: FIELD_LABELS[field],
+            label: FIELD_LABELS[field] + ' (Flex)',
             data: dataArr,
             fill: false,
             backgroundColor: '#fff',
-            borderColor: getColorForField(field),
+            borderColor: color,
             pointRadius: 4,
-            pointBackgroundColor: getColorForField(field),
+            pointBackgroundColor: color,
           });
-        });
-        data?.data.forEach((entry) => {
-          const { year, month, day } = entry._id;
-          labels.push(`${day}/${month}`);
-        });
-      } else {
-        // fallback for raw/session data (should not be used with new backend)
-        mainChartFields.forEach((field) => {
-          const dataArr = data?.data.map((entry) => entry.sensors?.[field] || 0);
-          datasets.push({
-            label: FIELD_LABELS[field],
-            data: dataArr,
-            fill: false,
-            backgroundColor: '#fff',
-            borderColor: getColorForField(field),
-            pointRadius: 4,
-            pointBackgroundColor: getColorForField(field),
-          });
-        });
-        data?.data.forEach((entry) => {
-          const date = new Date(entry.createdAt);
-          labels.push(date.toLocaleString());
         });
       }
 
@@ -531,7 +557,29 @@ const History = () => {
                           y: {
                             beginAtZero: true,
                             ticks: { color: '#fff', font: { size: 14 } },
-                            grid: { color: 'rgba(255,255,255,0.1)' }
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            min: (() => {
+                              // Find min value from all datasets
+                              let min = Number.POSITIVE_INFINITY;
+                              chartData.datasets.forEach(ds => {
+                                ds.data.forEach(val => {
+                                  const num = Number(val);
+                                  if (!isNaN(num) && num < min) min = num;
+                                });
+                              });
+                              return min === Number.POSITIVE_INFINITY ? 0 : min;
+                            })(),
+                            max: (() => {
+                              // Find max value from all datasets
+                              let max = Number.NEGATIVE_INFINITY;
+                              chartData.datasets.forEach(ds => {
+                                ds.data.forEach(val => {
+                                  const num = Number(val);
+                                  if (!isNaN(num) && num > max) max = num;
+                                });
+                              });
+                              return max === Number.NEGATIVE_INFINITY ? 100 : max;
+                            })(),
                           }
                         }
                       }}
