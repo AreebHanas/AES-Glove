@@ -19,7 +19,7 @@ export const WebSocketProvider = ({ children }) => {
   const [rounds, setRounds] = useState(0);
   const { processingExerciseId, sensor } = useSelector((state) => state.processingExercise);
   const { user } = useSelector((state) => state.user);
-  const [isRapCountTrue, setIsRapCountTrue] = useState(true);
+  const [readyForRep, setReadyForRep] = useState(true);
   
   useEffect(() => {
     let prevValueRef = { value: null };
@@ -37,46 +37,41 @@ export const WebSocketProvider = ({ children }) => {
       };
 
       ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        if (message.event !== "test-data") return;
-        const { data } = message;
+  const message = JSON.parse(event.data);
+  if (message.event !== "test-data") return;
+  const { data } = message;
 
-        let currentValue = null;
-        switch (sensor) {
-          case "EF_Flex": currentValue = classifyFlexValue01(data.Flex.EF_Flex); break;
-          case "IF_Flex": currentValue = classifyFlexValue02(data.Flex.IF_Flex); break;
-          case "MF_Flex": currentValue = classifyFlexValue03(data.Flex.MF_Flex); break;
-          case "PF_Flex": currentValue = classifyFlexValue04(data.Flex.PF_Flex); break;
-          case "RF_Flex": currentValue = classifyFlexValue05(data.Flex.RF_Flex); break;
-          case "TF_Flex": currentValue = classifyFlexValue06(data.Flex.TF_Flex); break;
-          case "WF_Flex": currentValue = classifyFlexValue07(data.Flex.WF_Flex); break;
-          default:
-            console.log('Sensor value did not match any expected flex key:', sensor);
-        }
+  let currentValue = null;
+  switch (sensor) {
+    case "EF_Flex": currentValue = classifyFlexValue01(data.Flex.EF_Flex); break;
+    case "IF_Flex": currentValue = classifyFlexValue02(data.Flex.IF_Flex); break;
+    case "MF_Flex": currentValue = classifyFlexValue03(data.Flex.MF_Flex); break;
+    case "PF_Flex": currentValue = classifyFlexValue04(data.Flex.PF_Flex); break;
+    case "RF_Flex": currentValue = classifyFlexValue05(data.Flex.RF_Flex); break;
+    case "TF_Flex": currentValue = classifyFlexValue06(data.Flex.TF_Flex); break;
+    case "WF_Flex": currentValue = classifyFlexValue07(data.Flex.WF_Flex); break;
+    default:
+      console.log('Sensor value did not match any expected flex key:', sensor);
+  }
 
-        // Check for transition from 'Full Bend' to 'Almost No Bend'
-        if (currentValue === 'Full Bend') {
-          if ( isRapCountTrue) {
-            roundsRef.current++;
-            setRounds(roundsRef.current);
-          }
-          setIsRapCountTrue(false);
-        } else if (currentValue === 'Almost No Bend' || currentValue === 'No Bend') {
-          setIsRapCountTrue(true);
-        }
+  // Count only on transition into Full Bend
+  if (prevValueRef.value !== 'Full Bend' && currentValue === 'Full Bend') {
+    roundsRef.current++;
+    setRounds(roundsRef.current);
+  }
 
-        prevValueRef.value = currentValue;
+  prevValueRef.value = currentValue;
 
-        if (processingExerciseId && user.id) {
-          ws.send(JSON.stringify({
-            event: "save-sensor-data",
-            roomId,
-            exerciseId: processingExerciseId,
-            storeData: data,
-            completedRounds: roundsRef.current
-          }));
-        }
-      };
+  if (processingExerciseId && user.id) {
+    ws.send(JSON.stringify({
+      event: "save-sensor-data",
+      roomId: user.id,
+      exerciseId: processingExerciseId,
+      storeData: data,
+      completedRounds: roundsRef.current
+    }));
+  }
+};
 
       ws.onerror = (err) => {
         console.error("WebSocket error:", err);
