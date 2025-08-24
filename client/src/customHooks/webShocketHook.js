@@ -36,42 +36,84 @@ export const WebSocketProvider = ({ children }) => {
         ws.send(JSON.stringify({ event: "join-room", roomId }));
       };
 
-      ws.onmessage = (event) => {
-  const message = JSON.parse(event.data);
-  if (message.event !== "test-data") return;
-  const { data } = message;
+    useEffect(() => {
+  let prevValueRef = { value: null };
+  let lastRepTimeRef = { time: 0 }; // track last rep timestamp
 
-  let currentValue = null;
-  switch (sensor) {
-    case "EF_Flex": currentValue = classifyFlexValue01(data.Flex.EF_Flex); break;
-    case "IF_Flex": currentValue = classifyFlexValue02(data.Flex.IF_Flex); break;
-    case "MF_Flex": currentValue = classifyFlexValue03(data.Flex.MF_Flex); break;
-    case "PF_Flex": currentValue = classifyFlexValue04(data.Flex.PF_Flex); break;
-    case "RF_Flex": currentValue = classifyFlexValue05(data.Flex.RF_Flex); break;
-    case "TF_Flex": currentValue = classifyFlexValue06(data.Flex.TF_Flex); break;
-    case "WF_Flex": currentValue = classifyFlexValue07(data.Flex.WF_Flex); break;
-    default:
-      console.log('Sensor value did not match any expected flex key:', sensor);
+  if (processingExerciseId && user && user.id) {
+    wsRef.current = new window.WebSocket(SOCKET_URL);
+    const ws = wsRef.current;
+    const roomId = user.id;
+
+    ws.onopen = () => {
+      roundsRef.current = 0;
+      setRounds(0);
+      prevValueRef.value = null;
+      lastRepTimeRef.time = 0;
+      console.log("WebSocket connection established");
+      ws.send(JSON.stringify({ event: "join-room", roomId }));
+    };
+
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.event !== "test-data") return;
+      const { data } = message;
+
+      let currentValue = null;
+      switch (sensor) {
+        case "EF_Flex": currentValue = classifyFlexValue01(data.Flex.EF_Flex); break;
+        case "IF_Flex": currentValue = classifyFlexValue02(data.Flex.IF_Flex); break;
+        case "MF_Flex": currentValue = classifyFlexValue03(data.Flex.MF_Flex); break;
+        case "PF_Flex": currentValue = classifyFlexValue04(data.Flex.PF_Flex); break;
+        case "RF_Flex": currentValue = classifyFlexValue05(data.Flex.RF_Flex); break;
+        case "TF_Flex": currentValue = classifyFlexValue06(data.Flex.TF_Flex); break;
+        case "WF_Flex": currentValue = classifyFlexValue07(data.Flex.WF_Flex); break;
+        default:
+          console.log('Sensor value did not match any expected flex key:', sensor);
+      }
+
+      // Count only on transition into Full Bend, with 6s cooldown
+      if (prevValueRef.value !== 'Full Bend' && currentValue === 'Full Bend') {
+        const now = Date.now();
+        if (now - lastRepTimeRef.time >= 6000) { // 6 seconds = 6000 ms
+          roundsRef.current++;
+          setRounds(roundsRef.current);
+          lastRepTimeRef.time = now; // update last rep timestamp
+        } else {
+          console.log("Rep ignored (cooldown active)");
+        }
+      }
+
+      prevValueRef.value = currentValue;
+
+      if (processingExerciseId && user.id) {
+        ws.send(JSON.stringify({
+          event: "save-sensor-data",
+          roomId,
+          exerciseId: processingExerciseId,
+          storeData: data,
+          completedRounds: roundsRef.current
+        }));
+      }
+    };
+
+    ws.onerror = (err) => {
+      console.error("WebSocket error:", err);
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+      wsRef.current = null;
+    };
   }
 
-  // Count only on transition into Full Bend
-  if (prevValueRef.value !== 'Full Bend' && currentValue === 'Full Bend') {
-    roundsRef.current++;
-    setRounds(roundsRef.current);
-  }
-
-  prevValueRef.value = currentValue;
-
-  if (processingExerciseId && user.id) {
-    ws.send(JSON.stringify({
-      event: "save-sensor-data",
-      roomId: user.id,
-      exerciseId: processingExerciseId,
-      storeData: data,
-      completedRounds: roundsRef.current
-    }));
-  }
-};
+  return () => {
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+  };
+}, [processingExerciseId, user && user.id, sensor]);
 
       ws.onerror = (err) => {
         console.error("WebSocket error:", err);
