@@ -8,6 +8,19 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 class AuthService {
+  logout = async (req, res) => {
+    try {
+      const { userId } = req.body;
+      if (!userId) {
+        return { error: true, msg: "User ID missing" };
+      }
+      await userModel.findByIdAndUpdate(userId, { online: false });
+      return { error: false, msg: "Logout successful" };
+    } catch (err) {
+      console.error("Logout error:", err);
+      return { error: true, msg: "Internal server error" };
+    }
+  };
   async hashing(password) {
     try {
       const salt = await bcrypt.genSalt(10);
@@ -89,9 +102,9 @@ class AuthService {
       const token = await this.generateToken(user);
 
       // If userRole is 'user', set status to true (online)
-      if (token.error === false && user.userRole === 'user' && user.status !== true) {
-        await userModel.findByIdAndUpdate(user._id, { status: true });
-        user.status = true;
+      if (token.error === false && user.userRole === 'user' && user.online !== true) {
+        await userModel.findByIdAndUpdate(user._id, { online: true });
+        user.online = true;
       }
 
       if (!token || token.error) {

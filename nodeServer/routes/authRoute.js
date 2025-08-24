@@ -3,6 +3,16 @@ import authService from '../services/authService.js';
 
 const router = express.Router()
 
+// Logout route
+router.post('/logout', async (req, res) => {
+    try {
+        const result = await authService.logout(req, res);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: true, msg: error.message });
+    }
+});
+
 router.get('/seeder', async (req, res) => {
     try {
         const result = await authService.seeder(req, res)

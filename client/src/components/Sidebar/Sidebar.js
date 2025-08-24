@@ -60,7 +60,7 @@ import { setUser } from "../../store/user/userSlice";
 const getAvatarUrl = (avatar) => {
   if (!avatar) return require("../../assets/img/defaultUser.png");
   if (typeof avatar === "string" && avatar.startsWith("/uploads/avatars")) {
-    return "http://20.249.219.51/:8080" + avatar;
+    return "http://20.249.219.51:8080" + avatar;
   }
   return avatar;
 };
@@ -73,6 +73,15 @@ const Sidebar = (props) => {
     const avatar = getAvatarUrl(user.avatar);
 
     const handleLogout = () => {
+    // Call backend to set online=false
+    const userId = user.id;
+    if (userId) {
+      fetch("http://20.249.219.51:8080/api/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+      });
+    }
     // Clear user state and localStorage
     dispatch(setUser({}));
     localStorage.removeItem("user");
