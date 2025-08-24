@@ -54,7 +54,7 @@ export const WebSocketProvider = ({ children }) => {
         }
 
         // Check for transition from 'Full Bend' to 'Almost No Bend'
-        if (prevValueRef.value === 'Full Bend' && currentValue === 'Almost No Bend') {
+        if ( currentValue === 'Full Bend') {
           roundsRef.current++;
           setRounds(roundsRef.current);
         }
