@@ -288,14 +288,26 @@ const LiveChart = ()=>{
     }
     // HR (keep your original HR logic)
     const hr = Array.isArray(data.sensors) && data.sensors[0]?.HR;
-    let hrValue
-    if (hr <= 100){ return hrValue = hr} 
-    else if (hr > 100 && hr <= 120) {return hrValue = hr - hr * 20/100}
-    else if (hr > 120 && hr <= 140) { return hrValue = hr - hr * 30/100 }
-    else if (hr > 140 && hr <= 150) {return hrValue = hr - hr * 35/100 }
-    else if (hr > 150 && hr < 160) { return hrValue = hr - hr * 40/100 }
-    else if( hr > 170 ){ return hrValue = hr - hr * 50/100}
+    function calculateHR(hr) {
+      let hrValue;
 
+      if (hr <= 100) {
+        hrValue = hr;
+      } else if (hr <= 120) {
+        hrValue = hr - hr * 20 / 100;
+      } else if (hr <= 140) {
+        hrValue = hr - hr * 30 / 100;
+      } else if (hr <= 150) {
+        hrValue = hr - hr * 35 / 100;
+      } else if (hr < 160) {
+        hrValue = hr - hr * 40 / 100;
+      } else if (hr > 170) {
+        hrValue = hr - hr * 50 / 100;
+      }
+
+      return hrValue;
+    }
+    const hrValue = calculateHR(hr);
     console.log(hr);
     console.log("hrValue: ",hrValue);
     if (hr !== undefined) {

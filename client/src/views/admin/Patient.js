@@ -292,8 +292,14 @@ const Patient = () => {
                                   e.preventDefault();
                                   handleEdit({
                                     _id: item._id,
+                                    name: item.name,
                                     email: item.email,
                                     userRole: item.userRole,
+                                    macAddress: item.macAddress,
+                                    description: item.description,
+                                    status: item.status,
+                                    avatar: item.avatar,
+                                    // add any other fields needed for editing
                                   });
                                 }}
                               >

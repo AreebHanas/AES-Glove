@@ -6,9 +6,9 @@ class UserService {
     // User account management services
     creatUser = async (userDetails) => {
         try {
-            const { email, password, name, macAddress } = userDetails;
+            const { email, password, name, macAddress, description } = userDetails;
             const hashedPassword = await bcrypt.hash(password, 10);
-            const user = await userModel.create({ email, password: hashedPassword, name, macAddress });
+            const user = await userModel.create({ email, password: hashedPassword, name, macAddress, description });
             const restExercise = await exerciseModel.find({status: false});
             if (user && user.userRole === 'user') {
                 if (restExercise && restExercise.length === 1) {
@@ -18,7 +18,7 @@ class UserService {
                     return { error: true, message: 'Default exercise not found' };
                 }
             }
-                return { message: 'created', id: user._id, role: user.userRole, error: false, description: user.description };
+            return { message: 'created', id: user._id, role: user.userRole, error: false, description: user.description };
         } catch (error) {
             error.message = error.message.includes('duplicate key error') ? 'User already exists' : error.message;
             return { error: true, message: error.message }  ;

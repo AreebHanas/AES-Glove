@@ -85,7 +85,14 @@ class AuthService {
         return { error: true, msg: "This account is blocked" };
       }
 
+      
       const token = await this.generateToken(user);
+
+      // If userRole is 'user', set status to true (online)
+      if (token.error === false && user.userRole === 'user' && user.status !== true) {
+        await userModel.findByIdAndUpdate(user._id, { status: true });
+        user.status = true;
+      }
 
       if (!token || token.error) {
         return { error: true, msg: "Token generation failed" };
@@ -100,7 +107,7 @@ class AuthService {
           email: user.email,
           name: user.name,
           userRole: user.userRole,
-          status: user.status,
+          status: true,
           exercise: user.exercise,
           avatar: user.avatar,
           description: user.description ? user.description : '',

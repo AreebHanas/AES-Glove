@@ -17,31 +17,33 @@ import toast from 'react-hot-toast';
 function AddModal(props) {
   const { className, modal, toggle, fetchUser, editUser, isEdit } = props;
   const [formData, setFormData] = useState({
-    email: editUser?.email || '',
+    email: typeof editUser?.email === 'string' ? editUser.email : '',
     password: '',
-    name: editUser?.name || '',
-    macAddress: editUser?.macAddress || '',
-  isEmailValid: false,
-  isPasswordValid: false,
-  isNameValid: false,
-  emailError: "",
-  passwordError: "",
-  nameError: "",
-  description: editUser?.description || ""
+    name: typeof editUser?.name === 'string' ? editUser.name : '',
+    macAddress: typeof editUser?.macAddress === 'string' ? editUser.macAddress : '',
+    isEmailValid: false,
+    isPasswordValid: false,
+    isNameValid: false,
+    emailError: "",
+    passwordError: "",
+    nameError: "",
+    description: typeof editUser?.description === 'string' ? editUser.description : ''
   });
 
   React.useEffect(() => {
     if (isEdit && editUser) {
       setFormData((prev) => ({
         ...prev,
-        email: editUser.email || '',
+        email: typeof editUser.email === 'string' ? editUser.email : '',
         password: '',
-        name: editUser.name || '',
-        macAddress: editUser.macAddress || '',
-        description: editUser.description || '',
+        name: typeof editUser.name === 'string' ? editUser.name : '',
+        macAddress: typeof editUser.macAddress === 'string' ? editUser.macAddress : '',
+        description: typeof editUser.description === 'string' ? editUser.description : '',
       }));
     }
   }, [isEdit, editUser]);
+
+  console.log(formData)
 
   const handleChange = (e) => {
     const {value,name} = e.target

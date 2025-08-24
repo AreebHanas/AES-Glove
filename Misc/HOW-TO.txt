@@ -1,7 +1,7 @@
 pip install 'uvicorn[standard]'
 pip install ngrok
 
-#python manage.py runserver 127.0.0.1:8000
+#python manage.py runserver 20.249.219.51:8000
 
 #python -m ngrok uvicorn --authtoken AUTHTOKEN AES_Glove.asgi:application | To Get Backend URL
 
