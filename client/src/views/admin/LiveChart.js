@@ -299,9 +299,9 @@ const LiveChart = ()=>{
         hrValue = hr - hr * 30 / 100;
       } else if (hr <= 150) {
         hrValue = hr - hr * 35 / 100;
-      } else if (hr < 160) {
+      } else if (hr <= 160) {
         hrValue = hr - hr * 40 / 100;
-      } else if (hr > 170) {
+      } else if (hr > 160) {
         hrValue = hr - hr * 50 / 100;
       }
 
