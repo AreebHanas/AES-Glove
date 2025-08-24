@@ -205,7 +205,7 @@ const LiveChart = ()=>{
         curve: 'smooth',
       },
       title: {
-        text: 'Hate Rate Value',
+        text: 'Heart Rate Value',
         align: 'left'
       },
       markers: {
@@ -222,6 +222,63 @@ const LiveChart = ()=>{
       yaxis: {
         max: 150,
         min:50
+      },
+      legend: {
+        show: false
+      },
+    },
+  });
+
+  // SPO2 graph
+  const [spo2Data, setSpo2Data] = useState([]);
+  const [spo2State, setSpo2State] = useState({
+    series: [{
+      name: "SPO2",
+      data: []
+    }],
+    options: {
+      chart: {
+        id: 'realtime-spo2',
+        height: 350,
+        type: 'line',
+        animations: {
+          enabled: true,
+          easing: 'linear',
+          dynamicAnimation: {
+            speed: 1000
+          }
+        },
+        toolbar: {
+          show: false
+        },
+        zoom: {
+          enabled: false
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'smooth',
+      },
+      title: {
+        text: 'SPO2 Value',
+        align: 'left'
+      },
+      markers: {
+        size: 0
+      },
+      xaxis: {
+        type: 'numeric',
+        range: XAXISRANGE,
+        floating:false,
+        stepSize:1,
+        min:0,
+        mix:0
+      },
+      yaxis: {
+        max: 100,
+        min:80
       },
       legend: {
         show: false
@@ -308,12 +365,23 @@ const LiveChart = ()=>{
       return hrValue;
     }
     const hrValue = calculateHR(hr);
-    console.log(hr);
-    console.log("hrValue: ",hrValue);
     if (hr !== undefined) {
       setData((prev) => {
         const updated = [...prev, { x: currentTime, y: hrValue }];
         setState((prevState) => ({
+          ...prevState,
+          series: [{ ...prevState.series[0], data: updated }]
+        }));
+        return updated;
+      });
+    }
+
+    // SPO2
+    const spo2 = Array.isArray(data.sensors) && data.sensors[0]?.SPO2;
+    if (spo2 !== undefined) {
+      setSpo2Data((prev) => {
+        const updated = [...prev, { x: currentTime, y: spo2 }];
+        setSpo2State((prevState) => ({
           ...prevState,
           series: [{ ...prevState.series[0], data: updated }]
         }));
@@ -368,6 +436,9 @@ const LiveChart = ()=>{
         <Container className="mt-7" fluid>
           <div id="chart" className="">
             <ReactApexChart options={state.options} series={state.series} type="line" height={350} />
+          </div>
+          <div id="spo2-chart">
+            <ReactApexChart options={spo2State.options} series={spo2State.series} type="line" height={350} />
           </div>
           <div id="flex-chart">
             <ReactApexChart options={flexOptions} series={flexSeries} type="line" height={350} />
